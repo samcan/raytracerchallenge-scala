@@ -42,7 +42,27 @@ class CanvasSuite extends munit.FunSuite {
 
   test("Writing pixels to a canvas") {
     val c = Canvas(10, 20)
-    c.writePixel(2, 3, red)
+    assertEquals(c.writePixel(2, 3, red), true)
     assertEquals(c.pixelAt(2, 3), red)
+  }
+
+  test("Writing to a col outside the canvas min fails") {
+    val c = Canvas(10, 20)
+    assertEquals(c.writePixel(-1, 5, red), false)
+  }
+
+  test("Writing to a row outside the canvas min fails") {
+    val c = Canvas(10, 20)
+    assertEquals(c.writePixel(1, -1, red), false)
+  }
+
+  test("Writing to a col outside the canvas max fails") {
+    val c = Canvas(10, 20)
+    assertEquals(c.writePixel(11, 5, red), false)
+  }
+
+  test("Writing to a row outside the canvas max fails") {
+    val c = Canvas(10, 20)
+    assertEquals(c.writePixel(5, 21, red), false)
   }
 }
