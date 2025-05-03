@@ -1,14 +1,18 @@
+package com.samuelcantrell.raytracer.tuple
+
+import com.samuelcantrell.raytracer.equality
+
 case class Tuple(x: Double, y: Double, z: Double, w: Double)
 
-def isPoint(t: Tuple): Boolean = almostEqual(t.w, 1.0)
-def isVector(t: Tuple): Boolean = almostEqual(t.w, 0.0)
+def isPoint(t: Tuple): Boolean = equality.almostEqual(t.w, 1.0)
+def isVector(t: Tuple): Boolean = equality.almostEqual(t.w, 0.0)
 
 def makePoint(x: Double, y: Double, z: Double): Tuple = Tuple(x, y, z, 1.0)
 def makeVector(x: Double, y: Double, z: Double): Tuple = Tuple(x, y, z, 0.0)
 
 def isEqual(a: Tuple, b: Tuple): Boolean = {
-  almostEqual(a.x, b.x) && almostEqual(a.y, b.y) &&
-  almostEqual(a.z, b.z) && almostEqual(a.w, b.w)
+  equality.almostEqual(a.x, b.x) && equality.almostEqual(a.y, b.y) &&
+  equality.almostEqual(a.z, b.z) && equality.almostEqual(a.w, b.w)
 }
 
 def add(a: Tuple, b: Tuple): Tuple = {

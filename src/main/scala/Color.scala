@@ -1,8 +1,13 @@
+package com.samuelcantrell.raytracer.color
+
+import com.samuelcantrell.raytracer.equality
+
 case class Color(red: Double, green: Double, blue: Double)
 
 def isEqual(a: Color, b: Color): Boolean =
-  almostEqual(a.red, b.red) && almostEqual(a.green, b.green) &&
-    almostEqual(a.blue, b.blue)
+  equality.almostEqual(a.red, b.red) &&
+    equality.almostEqual(a.green, b.green) &&
+    equality.almostEqual(a.blue, b.blue)
 
 def add(a: Color, b: Color): Color =
   Color(a.red + b.red, a.green + b.green, a.blue + b.blue)

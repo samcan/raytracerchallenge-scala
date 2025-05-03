@@ -1,12 +1,15 @@
+import com.samuelcantrell.raytracer.equality
+import com.samuelcantrell.raytracer.tuple._
+
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
 class TupleSuite extends munit.FunSuite {
   test("A tuple with w=1.0 is a point") {
     val obtained = Tuple(4.3, -4.2, 3.1, 1.0)
 
-    assertEqualsDouble(obtained.x, 4.3, EPSILON)
-    assertEqualsDouble(obtained.y, -4.2, EPSILON)
-    assertEqualsDouble(obtained.z, 3.1, EPSILON)
+    assertEqualsDouble(obtained.x, 4.3, equality.EPSILON)
+    assertEqualsDouble(obtained.y, -4.2, equality.EPSILON)
+    assertEqualsDouble(obtained.z, 3.1, equality.EPSILON)
     assertEquals(isPoint(obtained), true)
     assertEquals(isVector(obtained), false)
   }
@@ -14,9 +17,9 @@ class TupleSuite extends munit.FunSuite {
   test("A tuple with w=0.0 is a vector") {
     val obtained = Tuple(4.3, -4.2, 3.1, 0.0)
 
-    assertEqualsDouble(obtained.x, 4.3, EPSILON)
-    assertEqualsDouble(obtained.y, -4.2, EPSILON)
-    assertEqualsDouble(obtained.z, 3.1, EPSILON)
+    assertEqualsDouble(obtained.x, 4.3, equality.EPSILON)
+    assertEqualsDouble(obtained.y, -4.2, equality.EPSILON)
+    assertEqualsDouble(obtained.z, 3.1, equality.EPSILON)
     assertEquals(isPoint(obtained), false)
     assertEquals(isVector(obtained), true)
   }
