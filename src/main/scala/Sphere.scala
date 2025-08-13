@@ -50,3 +50,20 @@ def intersect(s: Sphere, r: ray.Ray): intersection.Intersections = {
     )
   }
 }
+
+def normalAt(s: Sphere, worldPoint: tuple.Tuple): tuple.Tuple = {
+  // Transform the world point to object space
+  val objectPoint = s.transform.inverse * worldPoint
+
+  // Calculate the object normal (vector from center to point)
+  val objectNormal = tuple.subtract(objectPoint, tuple.makePoint(0, 0, 0))
+
+  // Transform the normal back to world space
+  val worldNormal = s.transform.inverse.transpose * objectNormal
+
+  // Set w component to 0 to ensure it's a vector, then normalize
+  val correctedNormal =
+    tuple.makeVector(worldNormal.x, worldNormal.y, worldNormal.z)
+
+  tuple.normalize(correctedNormal)
+}
