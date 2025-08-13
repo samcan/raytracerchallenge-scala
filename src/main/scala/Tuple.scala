@@ -10,9 +10,21 @@ def isVector(t: Tuple): Boolean = equality.almostEqual(t.w, 0.0)
 def makePoint(x: Double, y: Double, z: Double): Tuple = Tuple(x, y, z, 1.0)
 def makeVector(x: Double, y: Double, z: Double): Tuple = Tuple(x, y, z, 0.0)
 
-def isEqual(a: Tuple, b: Tuple): Boolean = {
-  equality.almostEqual(a.x, b.x) && equality.almostEqual(a.y, b.y) &&
-  equality.almostEqual(a.z, b.z) && equality.almostEqual(a.w, b.w)
+def isEqual(
+    a: Tuple,
+    b: Tuple,
+    precision: Double = equality.EPSILON
+): Boolean = {
+  equality.almostEqual(a.x, b.x, precision) && equality.almostEqual(
+    a.y,
+    b.y,
+    precision
+  ) &&
+  equality.almostEqual(a.z, b.z, precision) && equality.almostEqual(
+    a.w,
+    b.w,
+    precision
+  )
 }
 
 def add(a: Tuple, b: Tuple): Tuple = {
