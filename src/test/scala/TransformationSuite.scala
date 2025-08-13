@@ -190,4 +190,39 @@ class TransformationSuite extends munit.FunSuite {
 
     assertEquals(tuple.isEqual(result, expected), true)
   }
+
+  test("Individual transformations are applied in sequence") {
+    val p = tuple.makePoint(1, 0, 1)
+    val A = rotation_x(math.Pi / 2)
+    val B = scaling(5, 5, 5)
+    val C = translation(10, 5, 7)
+
+    // apply rotation first
+    val p2 = A * p
+    val expected_p2 = tuple.makePoint(1, -1, 0)
+    assertEquals(tuple.isEqual(p2, expected_p2), true)
+
+    // then apply scaling
+    val p3 = B * p2
+    val expected_p3 = tuple.makePoint(5, -5, 0)
+    assertEquals(tuple.isEqual(p3, expected_p3), true)
+
+    // then apply translation
+    val p4 = C * p3
+    val expected_p4 = tuple.makePoint(15, 0, 7)
+    assertEquals(tuple.isEqual(p4, expected_p4), true)
+  }
+
+  test("Chained transformations must be applied in reverse order") {
+    val p = tuple.makePoint(1, 0, 1)
+    val A = rotation_x(math.Pi / 2)
+    val B = scaling(5, 5, 5)
+    val C = translation(10, 5, 7)
+
+    val T = C * B * A
+    val result = T * p
+    val expected = tuple.makePoint(15, 0, 7)
+
+    assertEquals(tuple.isEqual(result, expected), true)
+  }
 }
