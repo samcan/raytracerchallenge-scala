@@ -225,4 +225,37 @@ class TransformationSuite extends munit.FunSuite {
 
     assertEquals(tuple.isEqual(result, expected), true)
   }
+
+  test("Fluent interface for chaining transformations") {
+    val p = tuple.makePoint(1, 0, 1)
+
+    val transform = identity()
+      .rotate_x(math.Pi / 2)
+      .scale(5, 5, 5)
+      .translate(10, 5, 7)
+
+    val result = transform * p
+    val expected = tuple.makePoint(15, 0, 7)
+
+    assertEquals(tuple.isEqual(result, expected), true)
+  }
+
+  test("Fluent interface produces same result as manual chaining") {
+    val p = tuple.makePoint(2, 1, 0)
+
+    // Manual chaining
+    val manual =
+      translation(1, 0, 0) * scaling(2, 2, 2) * rotation_z(math.Pi / 4)
+
+    // Fluent interface
+    val fluent = identity()
+      .rotate_z(math.Pi / 4)
+      .scale(2, 2, 2)
+      .translate(1, 0, 0)
+
+    val manual_result = manual * p
+    val fluent_result = fluent * p
+
+    assertEquals(tuple.isEqual(manual_result, fluent_result), true)
+  }
 }

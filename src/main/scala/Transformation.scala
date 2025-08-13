@@ -92,3 +92,39 @@ def shearing(
 ): matrix.Matrix = {
   matrix.Matrix(4, 1, xy, xz, 0, yx, 1, yz, 0, zx, zy, 1, 0, 0, 0, 0, 1)
 }
+
+def identity(): matrix.Matrix = matrix.Matrix.identity()
+
+// Extension methods to add fluent interface to Matrix
+extension (m: matrix.Matrix) {
+  def translate(x: Double, y: Double, z: Double): matrix.Matrix = {
+    translation(x, y, z) * m
+  }
+
+  def scale(x: Double, y: Double, z: Double): matrix.Matrix = {
+    scaling(x, y, z) * m
+  }
+
+  def rotate_x(radians: Double): matrix.Matrix = {
+    rotation_x(radians) * m
+  }
+
+  def rotate_y(radians: Double): matrix.Matrix = {
+    rotation_y(radians) * m
+  }
+
+  def rotate_z(radians: Double): matrix.Matrix = {
+    rotation_z(radians) * m
+  }
+
+  def shear(
+      xy: Double,
+      xz: Double,
+      yx: Double,
+      yz: Double,
+      zx: Double,
+      zy: Double
+  ): matrix.Matrix = {
+    shearing(xy, xz, yx, yz, zx, zy) * m
+  }
+}
