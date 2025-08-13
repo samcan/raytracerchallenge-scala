@@ -70,3 +70,7 @@ def cross(a: Tuple, b: Tuple): Tuple = {
     a.x * b.y - a.y * b.x
   )
 }
+
+def reflect(v: Tuple, n: Tuple): Tuple = {
+  subtract(v, multiply(multiply(n, 2), dot(v, n)))
+}

@@ -162,4 +162,23 @@ class TupleSuite extends munit.FunSuite {
     val expected = makeVector(1, -2, 1)
     assertEquals(isEqual(obtained, expected), true)
   }
+
+  test("Reflecting a vector approaching at 45°") {
+    val v = makeVector(1, -1, 0)
+    val n = makeVector(0, 1, 0)
+    val r = reflect(v, n)
+    val expected = makeVector(1, 1, 0)
+
+    assertEquals(isEqual(r, expected), true)
+  }
+
+  test("Reflecting a vector off a slanted surface") {
+    val v = makeVector(0, -1, 0)
+    val sqrt2over2 = math.sqrt(2) / 2
+    val n = makeVector(sqrt2over2, sqrt2over2, 0)
+    val r = reflect(v, n)
+    val expected = makeVector(1, 0, 0)
+
+    assertEquals(isEqual(r, expected), true)
+  }
 }
