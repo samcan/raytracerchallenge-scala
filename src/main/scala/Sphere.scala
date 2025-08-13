@@ -3,21 +3,33 @@ package com.samuelcantrell.raytracer.sphere
 import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.intersection
+import com.samuelcantrell.raytracer.matrix
 import java.util.UUID
 
-case class Sphere(id: String = UUID.randomUUID().toString)
+case class Sphere(
+    id: String = UUID.randomUUID().toString,
+    transform: matrix.Matrix = matrix.Matrix.identity()
+)
 
 def sphere(): Sphere = {
   Sphere()
 }
 
+def setTransform(s: Sphere, t: matrix.Matrix): Sphere = {
+  s.copy(transform = t)
+}
+
 def intersect(s: Sphere, r: ray.Ray): intersection.Intersections = {
+  // Transform the ray by the inverse of the sphere's transformation
+  val transformed_ray = ray.transform(r, s.transform.inverse)
+
   // Vector from sphere center (0,0,0) to ray origin
-  val sphere_to_ray = tuple.subtract(r.origin, tuple.makePoint(0, 0, 0))
+  val sphere_to_ray =
+    tuple.subtract(transformed_ray.origin, tuple.makePoint(0, 0, 0))
 
   // Coefficients for quadratic equation: at² + bt + c = 0
-  val a = tuple.dot(r.direction, r.direction)
-  val b = 2 * tuple.dot(r.direction, sphere_to_ray)
+  val a = tuple.dot(transformed_ray.direction, transformed_ray.direction)
+  val b = 2 * tuple.dot(transformed_ray.direction, sphere_to_ray)
   val c = tuple.dot(sphere_to_ray, sphere_to_ray) - 1 // sphere radius² = 1
 
   // Calculate discriminant
