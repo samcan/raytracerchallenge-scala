@@ -1,5 +1,8 @@
 import com.samuelcantrell.raytracer.intersection._
 import com.samuelcantrell.raytracer.sphere
+import com.samuelcantrell.raytracer.ray.ray
+import com.samuelcantrell.raytracer.tuple.makePoint
+import com.samuelcantrell.raytracer.tuple.makeVector
 
 class IntersectionSuite extends munit.FunSuite {
 
@@ -84,5 +87,19 @@ class IntersectionSuite extends munit.FunSuite {
 
     assertEquals(i.isDefined, true)
     assertEquals(i.get, i4)
+  }
+
+  test("Precomputing the state of an intersection") {
+    val r = ray(makePoint(0, 0, -5), makeVector(0, 0, 1))
+    val shape = sphere.Sphere()
+    val i = intersection(4, shape)
+
+    val comps = prepareComputations(i, r)
+
+    assertEquals(comps.t, i.t)
+    assertEquals(comps.obj, i.obj)
+    assertEquals(comps.point, makePoint(0, 0, -1))
+    assertEquals(comps.eyev, makeVector(0, 0, -1))
+    assertEquals(comps.normalv, makeVector(0, 0, -1))
   }
 }
