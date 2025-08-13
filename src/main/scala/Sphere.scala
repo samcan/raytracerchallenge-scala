@@ -4,11 +4,13 @@ import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.intersection
 import com.samuelcantrell.raytracer.matrix
+import com.samuelcantrell.raytracer.material
 import java.util.UUID
 
 case class Sphere(
     id: String = UUID.randomUUID().toString,
-    transform: matrix.Matrix = matrix.Matrix.identity()
+    transform: matrix.Matrix = matrix.Matrix.identity(),
+    objectMaterial: material.Material = material.material()
 )
 
 def sphere(): Sphere = {
@@ -17,6 +19,10 @@ def sphere(): Sphere = {
 
 def setTransform(s: Sphere, t: matrix.Matrix): Sphere = {
   s.copy(transform = t)
+}
+
+def setMaterial(s: Sphere, m: material.Material): Sphere = {
+  s.copy(objectMaterial = m)
 }
 
 def intersect(s: Sphere, r: ray.Ray): intersection.Intersections = {

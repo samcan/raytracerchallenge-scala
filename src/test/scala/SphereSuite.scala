@@ -2,6 +2,7 @@ import com.samuelcantrell.raytracer.sphere._
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
+import com.samuelcantrell.raytracer.material
 
 class SphereSuite extends munit.FunSuite {
 
@@ -141,5 +142,22 @@ class SphereSuite extends munit.FunSuite {
     val expected = tuple.makeVector(0, 0.97014, -0.24254)
 
     assertEquals(tuple.isEqual(n, expected, 0.00001), true)
+  }
+
+  test("A sphere has a default material") {
+    val s = sphere()
+    val m = s.objectMaterial
+    val defaultMaterial = material.material()
+
+    assertEquals(m == defaultMaterial, true)
+  }
+
+  test("A sphere may be assigned a material") {
+    val s = sphere()
+    var m = material.material()
+    m = m.copy(ambient = 1.0)
+    val s2 = setMaterial(s, m)
+
+    assertEquals(s2.objectMaterial == m, true)
   }
 }
