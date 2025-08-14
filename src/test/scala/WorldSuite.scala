@@ -159,4 +159,52 @@ class WorldSuite extends munit.FunSuite {
 
     assertEquals(color.isEqual(c, expected), true)
   }
+
+  test("There is no shadow when nothing is collinear with point and light") {
+    val w = defaultWorld()
+    val p = tuple.makePoint(0, 10, 0)
+
+    assertEquals(isShadowed(w, p), false)
+  }
+
+  test("The shadow when an object is between the point and the light") {
+    val w = defaultWorld()
+    val p = tuple.makePoint(10, -10, 10)
+
+    assertEquals(isShadowed(w, p), true)
+  }
+
+  test("There is no shadow when an object is behind the light") {
+    val w = defaultWorld()
+    val p = tuple.makePoint(-20, 20, -20)
+
+    assertEquals(isShadowed(w, p), false)
+  }
+
+  test("There is no shadow when an object is behind the point") {
+    val w = defaultWorld()
+    val p = tuple.makePoint(-2, 2, -2)
+
+    assertEquals(isShadowed(w, p), false)
+  }
+
+  test("shade_hit() is given an intersection in shadow") {
+    val w = world()
+    val lightSource =
+      light.pointLight(tuple.makePoint(0, 0, -10), color.Color(1, 1, 1))
+    val s1 = sphere.sphere()
+    val s2 =
+      sphere.setTransform(sphere.sphere(), transformation.translation(0, 0, 10))
+    val wWithObjects =
+      w.copy(objects = Vector(s1, s2), lightSource = Some(lightSource))
+
+    val r = ray.ray(tuple.makePoint(0, 0, 5), tuple.makeVector(0, 0, 1))
+    val i = com.samuelcantrell.raytracer.intersection.intersection(4, s2)
+    val comps =
+      com.samuelcantrell.raytracer.intersection.prepareComputations(i, r)
+    val c = shadeHit(wWithObjects, comps)
+    val expected = color.Color(0.1, 0.1, 0.1)
+
+    assertEquals(color.isEqual(c, expected), true)
+  }
 }

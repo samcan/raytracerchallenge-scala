@@ -56,15 +56,38 @@ def contains(w: World, s: sphere.Sphere): Boolean = {
   w.objects.contains(s)
 }
 
+def isShadowed(w: World, point: tuple.Tuple): Boolean = {
+  w.lightSource match {
+    case Some(light) =>
+      // Vector from point to light source
+      val v = tuple.subtract(light.position, point)
+      val distance = tuple.magnitude(v)
+      val direction = tuple.normalize(v)
+
+      // Create a ray from the point toward the light
+      val r = ray.ray(point, direction)
+      val intersections = intersectWorld(w, r)
+
+      // Check if there's a hit between the point and the light
+      intersection.hit(intersections) match {
+        case Some(h) => h.t < distance
+        case None    => false
+      }
+    case None => false // No light source, no shadows
+  }
+}
+
 def shadeHit(w: World, comps: intersection.Computations): color.Color = {
   w.lightSource match {
     case Some(light) =>
+      val shadowed = isShadowed(w, comps.overPoint)
       material.lighting(
         comps.obj.objectMaterial,
         light,
-        comps.point,
+        comps.overPoint,
         comps.eyev,
-        comps.normalv
+        comps.normalv,
+        shadowed
       )
     case None =>
       color.Color(0, 0, 0) // No light source, return black

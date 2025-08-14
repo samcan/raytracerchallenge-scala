@@ -82,4 +82,18 @@ class MaterialSuite extends munit.FunSuite {
 
     assertEquals(color.isEqual(result, expected), true)
   }
+
+  test("Lighting with the surface in shadow") {
+    val m = material()
+    val position = tuple.makePoint(0, 0, 0)
+    val eyev = tuple.makeVector(0, 0, -1)
+    val normalv = tuple.makeVector(0, 0, -1)
+    val lightSource =
+      light.pointLight(tuple.makePoint(0, 0, -10), color.Color(1, 1, 1))
+    val inShadow = true
+    val result = lighting(m, lightSource, position, eyev, normalv, inShadow)
+    val expected = color.Color(0.1, 0.1, 0.1)
+
+    assertEquals(color.isEqual(result, expected), true)
+  }
 }

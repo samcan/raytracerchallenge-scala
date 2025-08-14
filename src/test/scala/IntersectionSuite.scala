@@ -3,6 +3,8 @@ import com.samuelcantrell.raytracer.sphere
 import com.samuelcantrell.raytracer.ray.ray
 import com.samuelcantrell.raytracer.tuple.makePoint
 import com.samuelcantrell.raytracer.tuple.makeVector
+import com.samuelcantrell.raytracer.transformation
+import com.samuelcantrell.raytracer.equality
 
 class IntersectionSuite extends munit.FunSuite {
 
@@ -125,5 +127,17 @@ class IntersectionSuite extends munit.FunSuite {
     assertEquals(comps.inside, true)
     // normal would have been (0, 0, 1), but is inverted!
     assertEquals(comps.normalv, makeVector(0, 0, -1))
+  }
+
+  test("The hit should offset the point") {
+    val r = ray(makePoint(0, 0, -5), makeVector(0, 0, 1))
+    val shape =
+      sphere.setTransform(sphere.sphere(), transformation.translation(0, 0, 1))
+    val i = intersection(5, shape)
+
+    val comps = prepareComputations(i, r)
+
+    assertEquals(comps.overPoint.z < -equality.EPSILON / 2, true)
+    assertEquals(comps.point.z > comps.overPoint.z, true)
   }
 }

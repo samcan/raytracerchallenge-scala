@@ -3,6 +3,7 @@ package com.samuelcantrell.raytracer.intersection
 import com.samuelcantrell.raytracer.sphere
 import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
+import com.samuelcantrell.raytracer.equality
 
 case class Intersection(t: Double, obj: sphere.Sphere)
 
@@ -14,6 +15,7 @@ case class Computations(
     t: Double,
     obj: sphere.Sphere,
     point: tuple.Tuple,
+    overPoint: tuple.Tuple,
     eyev: tuple.Tuple,
     normalv: tuple.Tuple,
     inside: Boolean
@@ -49,10 +51,14 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
     normalv = tuple.negate(normalv)
   }
 
+  // Compute the over point - slightly offset in the direction of the normal
+  val overPoint = tuple.add(point, tuple.multiply(normalv, equality.EPSILON))
+
   Computations(
     t = i.t,
     obj = i.obj,
     point = point,
+    overPoint = overPoint,
     eyev = eyev,
     normalv = normalv,
     inside = inside
