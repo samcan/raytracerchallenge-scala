@@ -102,4 +102,28 @@ class IntersectionSuite extends munit.FunSuite {
     assertEquals(comps.eyev, makeVector(0, 0, -1))
     assertEquals(comps.normalv, makeVector(0, 0, -1))
   }
+
+  test("The hit, when an intersection occurs on the outside") {
+    val r = ray(makePoint(0, 0, -5), makeVector(0, 0, 1))
+    val shape = sphere.sphere()
+    val i = intersection(4, shape)
+
+    val comps = prepareComputations(i, r)
+
+    assertEquals(comps.inside, false)
+  }
+
+  test("The hit, when an intersection occurs on the inside") {
+    val r = ray(makePoint(0, 0, 0), makeVector(0, 0, 1))
+    val shape = sphere.sphere()
+    val i = intersection(1, shape)
+
+    val comps = prepareComputations(i, r)
+
+    assertEquals(comps.point, makePoint(0, 0, 1))
+    assertEquals(comps.eyev, makeVector(0, 0, -1))
+    assertEquals(comps.inside, true)
+    // normal would have been (0, 0, 1), but is inverted!
+    assertEquals(comps.normalv, makeVector(0, 0, -1))
+  }
 }

@@ -15,7 +15,8 @@ case class Computations(
     obj: sphere.Sphere,
     point: tuple.Tuple,
     eyev: tuple.Tuple,
-    normalv: tuple.Tuple
+    normalv: tuple.Tuple,
+    inside: Boolean
 )
 
 def intersection(t: Double, s: sphere.Sphere): Intersection = {
@@ -38,13 +39,22 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
   val eyev = tuple.negate(r.direction)
 
   // Compute the normal vector at the intersection point
-  val normalv = sphere.normalAt(i.obj, point)
+  var normalv = sphere.normalAt(i.obj, point)
+
+  // Check if we're inside the object
+  val inside = tuple.dot(normalv, eyev) < 0
+
+  // If we're inside, invert the normal vector
+  if (inside) {
+    normalv = tuple.negate(normalv)
+  }
 
   Computations(
     t = i.t,
     obj = i.obj,
     point = point,
     eyev = eyev,
-    normalv = normalv
+    normalv = normalv,
+    inside = inside
   )
 }
