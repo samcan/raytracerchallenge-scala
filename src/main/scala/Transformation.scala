@@ -1,6 +1,7 @@
 package com.samuelcantrell.raytracer.transformation
 
 import com.samuelcantrell.raytracer.matrix
+import com.samuelcantrell.raytracer.tuple
 
 def translation(x: Double, y: Double, z: Double): matrix.Matrix = {
   matrix.Matrix(4, 1, 0, 0, x, 0, 1, 0, y, 0, 0, 1, z, 0, 0, 0, 1)
@@ -94,6 +95,67 @@ def shearing(
 }
 
 def identity(): matrix.Matrix = matrix.Matrix.identity()
+
+def viewTransform(
+    from: tuple.Tuple,
+    to: tuple.Tuple,
+    up: tuple.Tuple
+): matrix.Matrix = {
+  // Compute the forward vector (from the eye toward the target)
+  val forward = tuple.normalize(tuple.subtract(to, from))
+
+  // Compute the left vector (perpendicular to forward and up)
+  val upNormalized = tuple.normalize(up)
+  val left = tuple.cross(forward, upNormalized)
+
+  // Compute the true up vector (perpendicular to left and forward)
+  val trueUp = tuple.cross(left, forward)
+
+  // Create the orientation matrix
+  val orientation = matrix.Matrix(
+    4,
+    left.x,
+    left.y,
+    left.z,
+    0,
+    trueUp.x,
+    trueUp.y,
+    trueUp.z,
+    0,
+    -forward.x,
+    -forward.y,
+    -forward.z,
+    0,
+    0,
+    0,
+    0,
+    1
+  )
+
+  // Translate by the negative of the from point
+  val translation = matrix.Matrix(
+    4,
+    1,
+    0,
+    0,
+    -from.x,
+    0,
+    1,
+    0,
+    -from.y,
+    0,
+    0,
+    1,
+    -from.z,
+    0,
+    0,
+    0,
+    1
+  )
+
+  // Combine orientation and translation
+  orientation * translation
+}
 
 // Extension methods to add fluent interface to Matrix
 extension (m: matrix.Matrix) {

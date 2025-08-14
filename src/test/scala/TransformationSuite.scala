@@ -258,4 +258,47 @@ class TransformationSuite extends munit.FunSuite {
 
     assertEquals(tuple.isEqual(manual_result, fluent_result), true)
   }
+
+  test("The transformation matrix for the default orientation") {
+    val from = tuple.makePoint(0, 0, 0)
+    val to = tuple.makePoint(0, 0, -1)
+    val up = tuple.makeVector(0, 1, 0)
+    val t = viewTransform(from, to, up)
+    val expected = matrix.Matrix.identity()
+
+    assertEquals(matrix.isEqual(t, expected), true)
+  }
+
+  test("A view transformation matrix looking in positive z direction") {
+    val from = tuple.makePoint(0, 0, 0)
+    val to = tuple.makePoint(0, 0, 1)
+    val up = tuple.makeVector(0, 1, 0)
+    val t = viewTransform(from, to, up)
+    val expected = scaling(-1, 1, -1)
+
+    assertEquals(matrix.isEqual(t, expected), true)
+  }
+
+  test("The view transformation moves the world") {
+    val from = tuple.makePoint(0, 0, 8)
+    val to = tuple.makePoint(0, 0, 0)
+    val up = tuple.makeVector(0, 1, 0)
+    val t = viewTransform(from, to, up)
+    val expected = translation(0, 0, -8)
+
+    assertEquals(matrix.isEqual(t, expected), true)
+  }
+
+  test("An arbitrary view transformation") {
+    val from = tuple.makePoint(1, 3, 2)
+    val to = tuple.makePoint(4, -2, 8)
+    val up = tuple.makeVector(1, 1, 0)
+    val t = viewTransform(from, to, up)
+    val expected = matrix.Matrix(4, -0.50709, 0.50709, 0.67612, -2.36643,
+      0.76772, 0.60609, 0.12122, -2.82843, -0.35857, 0.59761, -0.71714, 0.00000,
+      0.00000, 0.00000, 0.00000, 1.00000)
+
+    val precision = 0.00001
+    assertEquals(matrix.isEqual(t, expected, precision), true)
+  }
 }
