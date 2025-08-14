@@ -198,13 +198,17 @@ def transpose(m: Matrix): Matrix = {
   Matrix(resultData, m.size)
 }
 
-def isEqual(a: Matrix, b: Matrix): Boolean = {
+def isEqual(
+    a: Matrix,
+    b: Matrix,
+    precision: Double = equality.EPSILON
+): Boolean = {
   if (a.size != b.size) {
     false
   } else {
     (0 until a.size).forall { row =>
       (0 until a.size).forall { col =>
-        equality.almostEqual(a(row, col), b(row, col))
+        equality.almostEqual(a(row, col), b(row, col), precision)
       }
     }
   }
