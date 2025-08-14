@@ -49,7 +49,7 @@ def intersectWorld(w: World, r: ray.Ray): intersection.Intersections = {
     objIntersections.values
   }
 
-  intersection.intersections(allIntersections: _*)
+  intersection.intersections(allIntersections*)
 }
 
 def contains(w: World, s: sphere.Sphere): Boolean = {
