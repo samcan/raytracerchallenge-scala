@@ -121,4 +121,42 @@ class WorldSuite extends munit.FunSuite {
 
     assertEquals(color.isEqual(c, expected, 0.00001), true)
   }
+
+  test("The color when a ray misses") {
+    val w = defaultWorld()
+    val r = ray.ray(tuple.makePoint(0, 0, -5), tuple.makeVector(0, 1, 0))
+    val c = colorAt(w, r)
+    val expected = color.Color(0, 0, 0)
+
+    assertEquals(color.isEqual(c, expected), true)
+  }
+
+  test("The color when a ray hits") {
+    val w = defaultWorld()
+    val r = ray.ray(tuple.makePoint(0, 0, -5), tuple.makeVector(0, 0, 1))
+    val c = colorAt(w, r)
+    val expected = color.Color(0.38066, 0.47583, 0.2855)
+
+    assertEquals(color.isEqual(c, expected, 0.00001), true)
+  }
+
+  test("The color with an intersection behind the ray") {
+    val w = defaultWorld()
+    val outer = w.objects(0) // the first object in w
+    val outerWithAmbient = sphere.setMaterial(
+      outer,
+      outer.objectMaterial.copy(ambient = 1.0)
+    )
+    val inner = w.objects(1) // the second object in w
+    val innerWithAmbient = sphere.setMaterial(
+      inner,
+      inner.objectMaterial.copy(ambient = 1.0)
+    )
+    val wModified = w.copy(objects = Vector(outerWithAmbient, innerWithAmbient))
+    val r = ray.ray(tuple.makePoint(0, 0, 0.75), tuple.makeVector(0, 0, -1))
+    val c = colorAt(wModified, r)
+    val expected = innerWithAmbient.objectMaterial.materialColor
+
+    assertEquals(color.isEqual(c, expected), true)
+  }
 }

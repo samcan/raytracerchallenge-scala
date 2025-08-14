@@ -70,3 +70,14 @@ def shadeHit(w: World, comps: intersection.Computations): color.Color = {
       color.Color(0, 0, 0) // No light source, return black
   }
 }
+
+def colorAt(w: World, r: ray.Ray): color.Color = {
+  val intersections = intersectWorld(w, r)
+  intersection.hit(intersections) match {
+    case Some(hit) =>
+      val comps = intersection.prepareComputations(hit, r)
+      shadeHit(w, comps)
+    case None =>
+      color.Color(0, 0, 0) // Ray missed all objects, return black
+  }
+}
