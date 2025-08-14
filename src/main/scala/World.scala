@@ -55,3 +55,18 @@ def intersectWorld(w: World, r: ray.Ray): intersection.Intersections = {
 def contains(w: World, s: sphere.Sphere): Boolean = {
   w.objects.contains(s)
 }
+
+def shadeHit(w: World, comps: intersection.Computations): color.Color = {
+  w.lightSource match {
+    case Some(light) =>
+      material.lighting(
+        comps.obj.objectMaterial,
+        light,
+        comps.point,
+        comps.eyev,
+        comps.normalv
+      )
+    case None =>
+      color.Color(0, 0, 0) // No light source, return black
+  }
+}

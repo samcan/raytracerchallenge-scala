@@ -92,4 +92,33 @@ class WorldSuite extends munit.FunSuite {
 
     assertEquals(contains(w, randomSphere), false)
   }
+
+  test("Shading an intersection") {
+    val w = defaultWorld()
+    val r = ray.ray(tuple.makePoint(0, 0, -5), tuple.makeVector(0, 0, 1))
+    val shape = w.objects(0) // the first object in w
+    val i = com.samuelcantrell.raytracer.intersection.intersection(4, shape)
+    val comps =
+      com.samuelcantrell.raytracer.intersection.prepareComputations(i, r)
+    val c = shadeHit(w, comps)
+    val expected = color.Color(0.38066, 0.47583, 0.2855)
+
+    assertEquals(color.isEqual(c, expected, 0.00001), true)
+  }
+
+  test("Shading an intersection from the inside") {
+    val w = defaultWorld()
+    val newLight =
+      light.pointLight(tuple.makePoint(0, 0.25, 0), color.Color(1, 1, 1))
+    val wWithNewLight = w.copy(lightSource = Some(newLight))
+    val r = ray.ray(tuple.makePoint(0, 0, 0), tuple.makeVector(0, 0, 1))
+    val shape = wWithNewLight.objects(1) // the second object in w
+    val i = com.samuelcantrell.raytracer.intersection.intersection(0.5, shape)
+    val comps =
+      com.samuelcantrell.raytracer.intersection.prepareComputations(i, r)
+    val c = shadeHit(wWithNewLight, comps)
+    val expected = color.Color(0.90498, 0.90498, 0.90498)
+
+    assertEquals(color.isEqual(c, expected, 0.00001), true)
+  }
 }
