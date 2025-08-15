@@ -7,9 +7,9 @@ class PpmFileSuite extends munit.FunSuite {
     val c = Canvas(5, 3)
     val ppm = canvasToPpm(c)
 
-    assertEquals(ppm.apply(0), "P3")
-    assertEquals(ppm.apply(1), "5 3")
-    assertEquals(ppm.apply(2), "255")
+    assertEquals(ppm.apply(0), "P3\n")
+    assertEquals(ppm.apply(1), "5 3\n")
+    assertEquals(ppm.apply(2), "255\n")
   }
 
   test("Constructing the PPM pixel data") {
@@ -19,9 +19,9 @@ class PpmFileSuite extends munit.FunSuite {
     c.writePixel(4, 2, color.Color(-0.5, 0, 1))
     val ppm = canvasToPpm(c)
 
-    assertEquals(ppm.apply(3), "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0")
-    assertEquals(ppm.apply(4), "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0")
-    assertEquals(ppm.apply(5), "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255")
+    assertEquals(ppm.apply(3), "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n")
+    assertEquals(ppm.apply(4), "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0\n")
+    assertEquals(ppm.apply(5), "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n")
   }
 
   test("Red color to string") {
@@ -56,10 +56,10 @@ class PpmFileSuite extends munit.FunSuite {
 
     val ppm = canvasToPpm(c)
 
-    assertEquals(ppm.apply(0), "P3")
-    assertEquals(ppm.apply(1), "2 1")
-    assertEquals(ppm.apply(2), "255")
-    assertEquals(ppm.apply(3), "255 0 0 0 255 0")
+    assertEquals(ppm.apply(0), "P3\n")
+    assertEquals(ppm.apply(1), "2 1\n")
+    assertEquals(ppm.apply(2), "255\n")
+    assertEquals(ppm.apply(3), "255 0 0 0 255 0\n")
   }
 
   test("PPM file contains complete header and pixel data") {
@@ -73,13 +73,13 @@ class PpmFileSuite extends munit.FunSuite {
 
     assertEquals(
       ppm.length,
-      6
-    ) // header (3 lines) + pixel data (2 lines) + newline
-    assertEquals(ppm.apply(0), "P3")
-    assertEquals(ppm.apply(1), "2 2")
-    assertEquals(ppm.apply(2), "255")
-    assertEquals(ppm.apply(3), "255 0 0 0 255 0") // first row
-    assertEquals(ppm.apply(4), "0 0 255 255 255 255") // second row
+      5
+    ) // header (3 lines) + pixel data (2 lines), no additional newline
+    assertEquals(ppm.apply(0), "P3\n")
+    assertEquals(ppm.apply(1), "2 2\n")
+    assertEquals(ppm.apply(2), "255\n")
+    assertEquals(ppm.apply(3), "255 0 0 0 255 0\n") // first row
+    assertEquals(ppm.apply(4), "0 0 255 255 255 255\n") // second row
   }
 
   test("PPM files are terminated by a newline character") {
@@ -94,19 +94,19 @@ class PpmFileSuite extends munit.FunSuite {
 
     assertEquals(
       ppm.apply(3),
-      "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204"
+      "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n"
     )
     assertEquals(
       ppm.apply(4),
-      "153 255 204 153 255 204 153 255 204 153 255 204 153"
+      "153 255 204 153 255 204 153 255 204 153 255 204 153\n"
     )
     assertEquals(
       ppm.apply(5),
-      "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204"
+      "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204\n"
     )
     assertEquals(
       ppm.apply(6),
-      "153 255 204 153 255 204 153 255 204 153 255 204 153"
+      "153 255 204 153 255 204 153 255 204 153 255 204 153\n"
     )
   }
 }
