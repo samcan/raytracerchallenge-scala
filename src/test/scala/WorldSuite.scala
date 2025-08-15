@@ -1,5 +1,6 @@
 import com.samuelcantrell.raytracer.world._
 import com.samuelcantrell.raytracer.sphere
+import com.samuelcantrell.raytracer.shape
 import com.samuelcantrell.raytracer.light
 import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
@@ -143,12 +144,12 @@ class WorldSuite extends munit.FunSuite {
   test("The color with an intersection behind the ray") {
     val w = defaultWorld()
     val outer = w.objects(0) // the first object in w
-    val outerWithAmbient = sphere.setMaterial(
+    val outerWithAmbient = shape.setMaterial(
       outer,
       outer.objectMaterial.copy(ambient = 1.0)
     )
     val inner = w.objects(1) // the second object in w
-    val innerWithAmbient = sphere.setMaterial(
+    val innerWithAmbient = shape.setMaterial(
       inner,
       inner.objectMaterial.copy(ambient = 1.0)
     )

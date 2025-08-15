@@ -1,11 +1,11 @@
 package com.samuelcantrell.raytracer.intersection
 
-import com.samuelcantrell.raytracer.sphere
+import com.samuelcantrell.raytracer.shape
 import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.equality
 
-case class Intersection(t: Double, obj: sphere.Sphere)
+case class Intersection(t: Double, obj: shape.Shape)
 
 case class Intersections(values: Array[Intersection]):
   def count: Int = values.length
@@ -13,7 +13,7 @@ case class Intersections(values: Array[Intersection]):
 
 case class Computations(
     t: Double,
-    obj: sphere.Sphere,
+    obj: shape.Shape,
     point: tuple.Tuple,
     overPoint: tuple.Tuple,
     eyev: tuple.Tuple,
@@ -21,7 +21,7 @@ case class Computations(
     inside: Boolean
 )
 
-def intersection(t: Double, s: sphere.Sphere): Intersection = {
+def intersection(t: Double, s: shape.Shape): Intersection = {
   Intersection(t, s)
 }
 
@@ -41,7 +41,7 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
   val eyev = tuple.negate(r.direction)
 
   // Compute the normal vector at the intersection point
-  var normalv = sphere.normalAt(i.obj, point)
+  var normalv = shape.normalAt(i.obj, point)
 
   // Check if we're inside the object
   val inside = tuple.dot(normalv, eyev) < 0

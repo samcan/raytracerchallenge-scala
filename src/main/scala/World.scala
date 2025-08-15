@@ -1,5 +1,6 @@
 package com.samuelcantrell.raytracer.world
 
+import com.samuelcantrell.raytracer.shape
 import com.samuelcantrell.raytracer.sphere
 import com.samuelcantrell.raytracer.light
 import com.samuelcantrell.raytracer.ray
@@ -10,7 +11,7 @@ import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.material
 
 case class World(
-    objects: Vector[sphere.Sphere] = Vector.empty,
+    objects: Vector[shape.Shape] = Vector.empty,
     lightSource: Option[light.PointLight] = None
 )
 
@@ -45,14 +46,14 @@ def defaultWorld(): World = {
 
 def intersectWorld(w: World, r: ray.Ray): intersection.Intersections = {
   val allIntersections = w.objects.flatMap { obj =>
-    val objIntersections = sphere.intersect(obj, r)
+    val objIntersections = shape.intersect(obj, r)
     objIntersections.values
   }
 
   intersection.intersections(allIntersections*)
 }
 
-def contains(w: World, s: sphere.Sphere): Boolean = {
+def contains(w: World, s: shape.Shape): Boolean = {
   w.objects.contains(s)
 }
 
