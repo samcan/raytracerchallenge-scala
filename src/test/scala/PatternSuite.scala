@@ -135,4 +135,41 @@ class PatternSuite extends munit.FunSuite {
 
     assertEquals(color.isEqual(c, expected), true)
   }
+
+  test("A gradient linearly interpolates between colors") {
+    val pattern = GradientPattern(white, black)
+
+    // At x=0, should be white
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 0)), white),
+      true
+    )
+
+    // At x=0.25, should be color(0.75, 0.75, 0.75)
+    assertEquals(
+      color.isEqual(
+        pattern.patternAt(tuple.makePoint(0.25, 0, 0)),
+        color.Color(0.75, 0.75, 0.75)
+      ),
+      true
+    )
+
+    // At x=0.5, should be color(0.5, 0.5, 0.5)
+    assertEquals(
+      color.isEqual(
+        pattern.patternAt(tuple.makePoint(0.5, 0, 0)),
+        color.Color(0.5, 0.5, 0.5)
+      ),
+      true
+    )
+
+    // At x=0.75, should be color(0.25, 0.25, 0.25)
+    assertEquals(
+      color.isEqual(
+        pattern.patternAt(tuple.makePoint(0.75, 0, 0)),
+        color.Color(0.25, 0.25, 0.25)
+      ),
+      true
+    )
+  }
 }

@@ -94,3 +94,27 @@ def stripeAtObject(
 ): color.Color = {
   patternAtShape(pattern, obj, worldPoint)
 }
+
+// Gradient pattern implementation using linear interpolation
+case class GradientPattern(
+    a: color.Color,
+    b: color.Color,
+    override val transform: matrix.Matrix = matrix.Matrix.identity()
+) extends Pattern(transform) {
+
+  def patternAt(point: tuple.Tuple): color.Color = {
+    // Get the fractional part of x coordinate for interpolation
+    val distance = point.x - math.floor(point.x)
+
+    // Linear interpolation between colors a and b
+    color.Color(
+      a.red + distance * (b.red - a.red),
+      a.green + distance * (b.green - a.green),
+      a.blue + distance * (b.blue - a.blue)
+    )
+  }
+
+  def withTransform(newTransform: matrix.Matrix): GradientPattern = {
+    GradientPattern(a, b, newTransform)
+  }
+}
