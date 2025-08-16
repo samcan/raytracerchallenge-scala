@@ -73,6 +73,27 @@ case class GradientPattern(
   }
 }
 
+// Ring pattern implementation extending in both x and z
+case class RingPattern(
+    a: color.Color,
+    b: color.Color,
+    override val transform: matrix.Matrix = matrix.Matrix.identity()
+) extends Pattern(transform) {
+
+  def patternAt(point: tuple.Tuple): color.Color = {
+    // Calculate distance from origin in x-z plane
+    val distance = math.sqrt(point.x * point.x + point.z * point.z)
+    val ringIndex = math.floor(distance).toInt
+
+    // Even ring indices get color 'a', odd indices get color 'b'
+    if (ringIndex % 2 == 0) a else b
+  }
+
+  def withTransform(newTransform: matrix.Matrix): RingPattern = {
+    RingPattern(a, b, newTransform)
+  }
+}
+
 // Factory functions
 def testPattern(): TestPattern = {
   TestPattern()
@@ -84,6 +105,10 @@ def stripePattern(a: color.Color, b: color.Color): StripePattern = {
 
 def gradientPattern(a: color.Color, b: color.Color): GradientPattern = {
   GradientPattern(a, b)
+}
+
+def ringPattern(a: color.Color, b: color.Color): RingPattern = {
+  RingPattern(a, b)
 }
 
 // Function to set pattern transform

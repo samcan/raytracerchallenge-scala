@@ -172,4 +172,33 @@ class PatternSuite extends munit.FunSuite {
       true
     )
   }
+
+  test("A ring should extend in both x and z") {
+    val pattern = ringPattern(white, black)
+
+    // At origin (0,0,0), distance = 0, should be white (even ring index)
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 0)), white),
+      true
+    )
+
+    // At (1,0,0), distance = 1, should be black (odd ring index)
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(1, 0, 0)), black),
+      true
+    )
+
+    // At (0,0,1), distance = 1, should be black (odd ring index)
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 1)), black),
+      true
+    )
+
+    // At (0.708, 0, 0.708), distance ≈ 1.001, should be black (odd ring index)
+    // 0.708 is just slightly more than √2/2 ≈ 0.707
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0.708, 0, 0.708)), black),
+      true
+    )
+  }
 }
