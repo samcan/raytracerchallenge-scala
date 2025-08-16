@@ -78,27 +78,40 @@ def isShadowed(w: World, point: tuple.Tuple): Boolean = {
   }
 }
 
-def reflectedColor(w: World, comps: intersection.Computations): color.Color = {
+def reflectedColor(
+    w: World,
+    comps: intersection.Computations,
+    remaining: Int = 5
+): color.Color = {
+  // If remaining is less than 1, return black to prevent infinite recursion
+  if (remaining < 1) {
+    return color.Color(0, 0, 0)
+  }
+
   // If the material is not reflective, return black
   if (comps.obj.objectMaterial.reflective == 0.0) {
-    color.Color(0, 0, 0)
-  } else {
-    // Create a new ray in the reflection direction
-    val reflectRay = ray.ray(comps.overPoint, comps.reflectv)
-
-    // Get the color of the reflected ray
-    val reflectedColor = colorAt(w, reflectRay)
-
-    // Scale by the reflectivity of the material
-    color.multiply(reflectedColor, comps.obj.objectMaterial.reflective)
+    return color.Color(0, 0, 0)
   }
+
+  // Create a reflection ray
+  val reflectRay = ray.ray(comps.overPoint, comps.reflectv)
+
+  // Find the color of the reflection, decrementing remaining
+  val reflectedColorValue = colorAt(w, reflectRay, remaining - 1)
+
+  // Return the reflected color multiplied by the reflective value
+  color.multiply(reflectedColorValue, comps.obj.objectMaterial.reflective)
 }
 
-def shadeHit(w: World, comps: intersection.Computations): color.Color = {
+def shadeHit(
+    w: World,
+    comps: intersection.Computations,
+    remaining: Int = 5
+): color.Color = {
   w.lightSource match {
     case Some(light) =>
       val shadowed = isShadowed(w, comps.overPoint)
-      val surfaceColor = material.lighting(
+      val surface = material.lighting(
         comps.obj.objectMaterial,
         comps.obj,
         light,
@@ -107,22 +120,32 @@ def shadeHit(w: World, comps: intersection.Computations): color.Color = {
         comps.normalv,
         shadowed
       )
+      val reflected = reflectedColor(w, comps, remaining)
 
-      val reflected = reflectedColor(w, comps)
-
-      color.add(surfaceColor, reflected)
+      // Combine surface color and reflected color
+      color.add(surface, reflected)
     case None =>
       color.Color(0, 0, 0) // No light source, return black
   }
 }
 
-def colorAt(w: World, r: ray.Ray): color.Color = {
+// Backward compatibility version without remaining parameter
+def shadeHit(w: World, comps: intersection.Computations): color.Color = {
+  shadeHit(w, comps, 5)
+}
+
+def colorAt(w: World, r: ray.Ray, remaining: Int = 5): color.Color = {
   val intersections = intersectWorld(w, r)
   intersection.hit(intersections) match {
     case Some(hit) =>
       val comps = intersection.prepareComputations(hit, r)
-      shadeHit(w, comps)
+      shadeHit(w, comps, remaining)
     case None =>
       color.Color(0, 0, 0) // Ray missed all objects, return black
   }
+}
+
+// Backward compatibility version without remaining parameter
+def colorAt(w: World, r: ray.Ray): color.Color = {
+  colorAt(w, r, 5)
 }

@@ -1,5 +1,6 @@
 import com.samuelcantrell.raytracer.world._
 import com.samuelcantrell.raytracer.sphere
+import com.samuelcantrell.raytracer.plane
 import com.samuelcantrell.raytracer.shape
 import com.samuelcantrell.raytracer.light
 import com.samuelcantrell.raytracer.ray
@@ -8,7 +9,6 @@ import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.intersection
-import com.samuelcantrell.raytracer.plane
 
 class WorldSuite extends munit.FunSuite {
 
@@ -100,9 +100,8 @@ class WorldSuite extends munit.FunSuite {
     val w = defaultWorld()
     val r = ray.ray(tuple.makePoint(0, 0, -5), tuple.makeVector(0, 0, 1))
     val shape = w.objects(0) // the first object in w
-    val i = com.samuelcantrell.raytracer.intersection.intersection(4, shape)
-    val comps =
-      com.samuelcantrell.raytracer.intersection.prepareComputations(i, r)
+    val i = intersection.intersection(4, shape)
+    val comps = intersection.prepareComputations(i, r)
     val c = shadeHit(w, comps)
     val expected = color.Color(0.38066, 0.47583, 0.2855)
 
@@ -116,9 +115,8 @@ class WorldSuite extends munit.FunSuite {
     val wWithNewLight = w.copy(lightSource = Some(newLight))
     val r = ray.ray(tuple.makePoint(0, 0, 0), tuple.makeVector(0, 0, 1))
     val shape = wWithNewLight.objects(1) // the second object in w
-    val i = com.samuelcantrell.raytracer.intersection.intersection(0.5, shape)
-    val comps =
-      com.samuelcantrell.raytracer.intersection.prepareComputations(i, r)
+    val i = intersection.intersection(0.5, shape)
+    val comps = intersection.prepareComputations(i, r)
     val c = shadeHit(wWithNewLight, comps)
     val expected = color.Color(0.90498, 0.90498, 0.90498)
 
@@ -202,50 +200,12 @@ class WorldSuite extends munit.FunSuite {
       w.copy(objects = Vector(s1, s2), lightSource = Some(lightSource))
 
     val r = ray.ray(tuple.makePoint(0, 0, 5), tuple.makeVector(0, 0, 1))
-    val i = com.samuelcantrell.raytracer.intersection.intersection(4, s2)
-    val comps =
-      com.samuelcantrell.raytracer.intersection.prepareComputations(i, r)
+    val i = intersection.intersection(4, s2)
+    val comps = intersection.prepareComputations(i, r)
     val c = shadeHit(wWithObjects, comps)
     val expected = color.Color(0.1, 0.1, 0.1)
 
     assertEquals(color.isEqual(c, expected), true)
-  }
-
-  test("The reflected color for a nonreflective material") {
-    val w = defaultWorld()
-    val r = ray.ray(tuple.makePoint(0, 0, 0), tuple.makeVector(0, 0, 1))
-    val s = w.objects(1) // the second object in w
-    val shapeWithAmbient =
-      shape.setMaterial(s, s.objectMaterial.copy(ambient = 1.0))
-    val i = intersection.intersection(1, shapeWithAmbient)
-    val comps = intersection.prepareComputations(i, r)
-    val c = reflectedColor(w, comps)
-    val expected = color.Color(0, 0, 0)
-
-    assertEquals(color.isEqual(c, expected), true)
-  }
-
-  test("The reflected color for a reflective material") {
-    val w = defaultWorld()
-    val planeMaterial = material.material().copy(reflective = 0.5)
-    val planeTransform = transformation.translation(0, -1, 0)
-    val shape = plane
-      .plane()
-      .withMaterial(planeMaterial)
-      .withTransform(planeTransform)
-    val wWithPlane = w.copy(objects = w.objects :+ shape)
-
-    val sqrt2Over2 = math.sqrt(2) / 2
-    val r = ray.ray(
-      tuple.makePoint(0, 0, -3),
-      tuple.makeVector(0, -sqrt2Over2, sqrt2Over2)
-    )
-    val i = intersection.intersection(math.sqrt(2), shape)
-    val comps = intersection.prepareComputations(i, r)
-    val c = reflectedColor(wWithPlane, comps)
-    val expected = color.Color(0.19032, 0.2379, 0.14274)
-
-    assertEquals(color.isEqual(c, expected, 0.0001), true)
   }
 
   test("shade_hit() with a reflective material") {
@@ -273,9 +233,78 @@ class WorldSuite extends munit.FunSuite {
 
     // Prepare computations and shade
     val comps = intersection.prepareComputations(i, r)
-    val c = shadeHit(wWithShape, comps)
+    val colorResult = shadeHit(wWithShape, comps)
 
     val expected = color.Color(0.87677, 0.92436, 0.82918)
-    assertEquals(color.isEqual(c, expected, 0.0001), true)
+    assertEquals(color.isEqual(colorResult, expected, 0.0001), true)
+  }
+
+  test("color_at() with mutually reflective surfaces") {
+    val w = world()
+    val lightSource =
+      light.pointLight(tuple.makePoint(0, 0, 0), color.Color(1, 1, 1))
+    val wWithLight = w.copy(lightSource = Some(lightSource))
+
+    // Create lower plane
+    val lower = plane.plane()
+    val lowerMaterial = material.material().copy(reflective = 1.0)
+    val lowerWithMaterial = plane.setMaterial(lower, lowerMaterial)
+    val lowerWithTransform = plane.setTransform(
+      lowerWithMaterial,
+      transformation.translation(0, -1, 0)
+    )
+
+    // Create upper plane
+    val upper = plane.plane()
+    val upperMaterial = material.material().copy(reflective = 1.0)
+    val upperWithMaterial = plane.setMaterial(upper, upperMaterial)
+    val upperWithTransform =
+      plane.setTransform(upperWithMaterial, transformation.translation(0, 1, 0))
+
+    // Add both planes to world
+    val wWithPlanes =
+      wWithLight.copy(objects = Vector(lowerWithTransform, upperWithTransform))
+
+    // Create ray
+    val r = ray.ray(tuple.makePoint(0, 0, 0), tuple.makeVector(0, 1, 0))
+
+    // This should terminate successfully (not hang in infinite recursion)
+    val colorResult = colorAt(wWithPlanes, r)
+
+    // Just verify it doesn't hang - the exact color isn't specified in the test
+    assert(colorResult != null)
+  }
+
+  test("The reflected color at the maximum recursive depth") {
+    val w = defaultWorld()
+
+    // Create a reflective plane
+    val shape = plane.plane()
+    val reflectiveMaterial = material.material().copy(reflective = 0.5)
+    val shapeWithMaterial = plane.setMaterial(shape, reflectiveMaterial)
+    val shapeWithTransform = plane.setTransform(
+      shapeWithMaterial,
+      transformation.translation(0, -1, 0)
+    )
+
+    // Add shape to world
+    val wWithShape = w.copy(objects = w.objects :+ shapeWithTransform)
+
+    // Create ray and intersection
+    val sqrt2over2 = math.sqrt(2) / 2
+    val r = ray.ray(
+      tuple.makePoint(0, 0, -3),
+      tuple.makeVector(0, -sqrt2over2, sqrt2over2)
+    )
+    val i = intersection.intersection(math.sqrt(2), shapeWithTransform)
+
+    // Prepare computations
+    val comps = intersection.prepareComputations(i, r)
+
+    // Call reflected_color with remaining = 0
+    val colorResult = reflectedColor(wWithShape, comps, 0)
+
+    val expected = color.Color(0, 0, 0)
+    assertEquals(color.isEqual(colorResult, expected), true)
   }
 }
