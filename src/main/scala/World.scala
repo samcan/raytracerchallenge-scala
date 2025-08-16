@@ -84,6 +84,7 @@ def shadeHit(w: World, comps: intersection.Computations): color.Color = {
       val shadowed = isShadowed(w, comps.overPoint)
       material.lighting(
         comps.obj.objectMaterial,
+        comps.obj,
         light,
         comps.overPoint,
         comps.eyev,

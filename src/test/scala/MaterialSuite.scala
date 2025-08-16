@@ -2,6 +2,7 @@ import com.samuelcantrell.raytracer.material._
 import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.light
 import com.samuelcantrell.raytracer.tuple
+import com.samuelcantrell.raytracer.pattern
 
 class MaterialSuite extends munit.FunSuite {
 
@@ -23,7 +24,7 @@ class MaterialSuite extends munit.FunSuite {
     val normalv = tuple.makeVector(0, 0, -1)
     val lightSource =
       light.pointLight(tuple.makePoint(0, 0, -10), color.Color(1, 1, 1))
-    val result = lighting(m, lightSource, position, eyev, normalv)
+    val result = lighting(m, lightSource, position, eyev, normalv, false)
     val expected = color.Color(1.9, 1.9, 1.9)
 
     assertEquals(color.isEqual(result, expected), true)
@@ -37,7 +38,7 @@ class MaterialSuite extends munit.FunSuite {
     val normalv = tuple.makeVector(0, 0, -1)
     val lightSource =
       light.pointLight(tuple.makePoint(0, 0, -10), color.Color(1, 1, 1))
-    val result = lighting(m, lightSource, position, eyev, normalv)
+    val result = lighting(m, lightSource, position, eyev, normalv, false)
     val expected = color.Color(1.0, 1.0, 1.0)
 
     assertEquals(color.isEqual(result, expected), true)
@@ -50,7 +51,7 @@ class MaterialSuite extends munit.FunSuite {
     val normalv = tuple.makeVector(0, 0, -1)
     val lightSource =
       light.pointLight(tuple.makePoint(0, 10, -10), color.Color(1, 1, 1))
-    val result = lighting(m, lightSource, position, eyev, normalv)
+    val result = lighting(m, lightSource, position, eyev, normalv, false)
     val expected = color.Color(0.7364, 0.7364, 0.7364)
 
     assertEquals(color.isEqual(result, expected, 0.0001), true)
@@ -64,7 +65,7 @@ class MaterialSuite extends munit.FunSuite {
     val normalv = tuple.makeVector(0, 0, -1)
     val lightSource =
       light.pointLight(tuple.makePoint(0, 10, -10), color.Color(1, 1, 1))
-    val result = lighting(m, lightSource, position, eyev, normalv)
+    val result = lighting(m, lightSource, position, eyev, normalv, false)
     val expected = color.Color(1.6364, 1.6364, 1.6364)
 
     assertEquals(color.isEqual(result, expected, 0.0001), true)
@@ -77,7 +78,7 @@ class MaterialSuite extends munit.FunSuite {
     val normalv = tuple.makeVector(0, 0, -1)
     val lightSource =
       light.pointLight(tuple.makePoint(0, 0, 10), color.Color(1, 1, 1))
-    val result = lighting(m, lightSource, position, eyev, normalv)
+    val result = lighting(m, lightSource, position, eyev, normalv, false)
     val expected = color.Color(0.1, 0.1, 0.1)
 
     assertEquals(color.isEqual(result, expected), true)
@@ -95,5 +96,28 @@ class MaterialSuite extends munit.FunSuite {
     val expected = color.Color(0.1, 0.1, 0.1)
 
     assertEquals(color.isEqual(result, expected), true)
+  }
+
+  test("Lighting with a pattern applied") {
+    val stripePattern =
+      pattern.stripePattern(color.Color(1, 1, 1), color.Color(0, 0, 0))
+    val m = material().copy(
+      materialPattern = Some(stripePattern),
+      ambient = 1.0,
+      diffuse = 0.0,
+      specular = 0.0
+    )
+    val eyev = tuple.makeVector(0, 0, -1)
+    val normalv = tuple.makeVector(0, 0, -1)
+    val lightSource =
+      light.pointLight(tuple.makePoint(0, 0, -10), color.Color(1, 1, 1))
+
+    val c1 =
+      lighting(m, lightSource, tuple.makePoint(0.9, 0, 0), eyev, normalv, false)
+    val c2 =
+      lighting(m, lightSource, tuple.makePoint(1.1, 0, 0), eyev, normalv, false)
+
+    assertEquals(color.isEqual(c1, color.Color(1, 1, 1)), true)
+    assertEquals(color.isEqual(c2, color.Color(0, 0, 0)), true)
   }
 }

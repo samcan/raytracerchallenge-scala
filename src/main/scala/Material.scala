@@ -3,13 +3,15 @@ package com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.light
 import com.samuelcantrell.raytracer.tuple
+import com.samuelcantrell.raytracer.pattern
 
 case class Material(
     materialColor: color.Color = color.Color(1, 1, 1),
     ambient: Double = 0.1,
     diffuse: Double = 0.9,
     specular: Double = 0.9,
-    shininess: Double = 200.0
+    shininess: Double = 200.0,
+    materialPattern: Option[pattern.Pattern] = None
 )
 
 def material(): Material = {
@@ -18,14 +20,25 @@ def material(): Material = {
 
 def lighting(
     m: Material,
+    obj: com.samuelcantrell.raytracer.shape.Shape,
     lit: light.PointLight,
     point: tuple.Tuple,
     eyev: tuple.Tuple,
     normalv: tuple.Tuple,
     inShadow: Boolean = false
 ): color.Color = {
+  // Determine the color to use - either from pattern or material color
+  val surfaceColor = m.materialPattern match {
+    case Some(pat) =>
+      // Convert world point to object space, then to pattern space
+      val objectPoint = obj.transform.inverse * point
+      val patternPoint = pat.transform.inverse * objectPoint
+      pat.patternAt(patternPoint)
+    case None => m.materialColor
+  }
+
   // Combine the surface color with the light's color/intensity
-  val effectiveColor = color.multiply(m.materialColor, lit.intensity)
+  val effectiveColor = color.multiply(surfaceColor, lit.intensity)
 
   // Find the direction to the light source
   val lightv = tuple.normalize(tuple.subtract(lit.position, point))
@@ -74,4 +87,18 @@ def lighting(
     // Add the three contributions together to get the final shading
     color.add(color.add(ambient, diffuse), specular)
   }
+}
+
+// Backward compatibility - version without object parameter
+def lighting(
+    m: Material,
+    lit: light.PointLight,
+    point: tuple.Tuple,
+    eyev: tuple.Tuple,
+    normalv: tuple.Tuple,
+    inShadow: Boolean
+): color.Color = {
+  // For backward compatibility, create a dummy sphere at origin for pattern calculations
+  val dummyShape = com.samuelcantrell.raytracer.sphere.sphere()
+  lighting(m, dummyShape, lit, point, eyev, normalv, inShadow)
 }
