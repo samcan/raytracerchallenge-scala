@@ -94,6 +94,28 @@ case class RingPattern(
   }
 }
 
+// Checkers pattern implementation for 3D checkerboard
+case class CheckersPattern(
+    a: color.Color,
+    b: color.Color,
+    override val transform: matrix.Matrix = matrix.Matrix.identity()
+) extends Pattern(transform) {
+
+  def patternAt(point: tuple.Tuple): color.Color = {
+    // Sum the floor values of all three coordinates
+    val sum = math.floor(point.x).toInt + math.floor(point.y).toInt + math
+      .floor(point.z)
+      .toInt
+
+    // Even sum gets color 'a', odd sum gets color 'b'
+    if (sum % 2 == 0) a else b
+  }
+
+  def withTransform(newTransform: matrix.Matrix): CheckersPattern = {
+    CheckersPattern(a, b, newTransform)
+  }
+}
+
 // Factory functions
 def testPattern(): TestPattern = {
   TestPattern()
@@ -109,6 +131,10 @@ def gradientPattern(a: color.Color, b: color.Color): GradientPattern = {
 
 def ringPattern(a: color.Color, b: color.Color): RingPattern = {
   RingPattern(a, b)
+}
+
+def checkersPattern(a: color.Color, b: color.Color): CheckersPattern = {
+  CheckersPattern(a, b)
 }
 
 // Function to set pattern transform

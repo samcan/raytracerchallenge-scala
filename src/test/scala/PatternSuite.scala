@@ -201,4 +201,70 @@ class PatternSuite extends munit.FunSuite {
       true
     )
   }
+
+  test("Checkers should repeat in x") {
+    val pattern = checkersPattern(white, black)
+
+    // At (0,0,0), sum = 0+0+0 = 0 (even), should be white
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 0)), white),
+      true
+    )
+
+    // At (0.99,0,0), floor(0.99) = 0, sum = 0+0+0 = 0 (even), should be white
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0.99, 0, 0)), white),
+      true
+    )
+
+    // At (1.01,0,0), floor(1.01) = 1, sum = 1+0+0 = 1 (odd), should be black
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(1.01, 0, 0)), black),
+      true
+    )
+  }
+
+  test("Checkers should repeat in y") {
+    val pattern = checkersPattern(white, black)
+
+    // At (0,0,0), sum = 0+0+0 = 0 (even), should be white
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 0)), white),
+      true
+    )
+
+    // At (0,0.99,0), floor(0.99) = 0, sum = 0+0+0 = 0 (even), should be white
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0.99, 0)), white),
+      true
+    )
+
+    // At (0,1.01,0), floor(1.01) = 1, sum = 0+1+0 = 1 (odd), should be black
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 1.01, 0)), black),
+      true
+    )
+  }
+
+  test("Checkers should repeat in z") {
+    val pattern = checkersPattern(white, black)
+
+    // At (0,0,0), sum = 0+0+0 = 0 (even), should be white
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 0)), white),
+      true
+    )
+
+    // At (0,0,0.99), floor(0.99) = 0, sum = 0+0+0 = 0 (even), should be white
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 0.99)), white),
+      true
+    )
+
+    // At (0,0,1.01), floor(1.01) = 1, sum = 0+0+1 = 1 (odd), should be black
+    assertEquals(
+      color.isEqual(pattern.patternAt(tuple.makePoint(0, 0, 1.01)), black),
+      true
+    )
+  }
 }
