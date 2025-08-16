@@ -1,4 +1,5 @@
 import com.samuelcantrell.raytracer.sphere
+import com.samuelcantrell.raytracer.plane
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.color
@@ -12,38 +13,14 @@ import com.samuelcantrell.raytracer.ppmfile
   println("Creating raytraced scene...")
 
   // Create the floor
-  val floor = sphere.sphere()
-  val floorTransformed = sphere.setTransform(
-    floor,
-    transformation.scaling(10, 0.01, 10)
-  )
+  val floor = plane.Plane()
   val floorMaterial = material
     .material()
     .copy(
       materialColor = color.Color(1, 0.9, 0.9),
       specular = 0
     )
-  val floorWithMaterial = sphere.setMaterial(floorTransformed, floorMaterial)
-
-  // Create the left wall
-  val leftWall = sphere.sphere()
-  val leftWallTransform = transformation.translation(0, 0, 5) *
-    transformation.rotation_y(-math.Pi / 4) *
-    transformation.rotation_x(math.Pi / 2) *
-    transformation.scaling(10, 0.01, 10)
-  val leftWallTransformed = sphere.setTransform(leftWall, leftWallTransform)
-  val leftWallWithMaterial =
-    sphere.setMaterial(leftWallTransformed, floorMaterial)
-
-  // Create the right wall
-  val rightWall = sphere.sphere()
-  val rightWallTransform = transformation.translation(0, 0, 5) *
-    transformation.rotation_y(math.Pi / 4) *
-    transformation.rotation_x(math.Pi / 2) *
-    transformation.scaling(10, 0.01, 10)
-  val rightWallTransformed = sphere.setTransform(rightWall, rightWallTransform)
-  val rightWallWithMaterial =
-    sphere.setMaterial(rightWallTransformed, floorMaterial)
+  val floorWithMaterial = plane.setMaterial(floor, floorMaterial)
 
   // Create the middle sphere
   val middle = sphere.sphere()
@@ -97,8 +74,6 @@ import com.samuelcantrell.raytracer.ppmfile
   val sceneWorld = world.World(
     objects = Vector(
       floorWithMaterial,
-      leftWallWithMaterial,
-      rightWallWithMaterial,
       middleWithMaterial,
       rightWithMaterial,
       leftWithMaterial
