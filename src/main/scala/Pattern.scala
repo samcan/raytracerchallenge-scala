@@ -49,6 +49,30 @@ case class StripePattern(
   }
 }
 
+// Gradient pattern implementation using linear interpolation
+case class GradientPattern(
+    a: color.Color,
+    b: color.Color,
+    override val transform: matrix.Matrix = matrix.Matrix.identity()
+) extends Pattern(transform) {
+
+  def patternAt(point: tuple.Tuple): color.Color = {
+    // Get the fractional part of x coordinate for interpolation
+    val distance = point.x - math.floor(point.x)
+
+    // Linear interpolation between colors a and b
+    color.Color(
+      a.red + distance * (b.red - a.red),
+      a.green + distance * (b.green - a.green),
+      a.blue + distance * (b.blue - a.blue)
+    )
+  }
+
+  def withTransform(newTransform: matrix.Matrix): GradientPattern = {
+    GradientPattern(a, b, newTransform)
+  }
+}
+
 // Factory functions
 def testPattern(): TestPattern = {
   TestPattern()
@@ -56,6 +80,10 @@ def testPattern(): TestPattern = {
 
 def stripePattern(a: color.Color, b: color.Color): StripePattern = {
   StripePattern(a, b)
+}
+
+def gradientPattern(a: color.Color, b: color.Color): GradientPattern = {
+  GradientPattern(a, b)
 }
 
 // Function to set pattern transform
@@ -93,28 +121,4 @@ def stripeAtObject(
     worldPoint: tuple.Tuple
 ): color.Color = {
   patternAtShape(pattern, obj, worldPoint)
-}
-
-// Gradient pattern implementation using linear interpolation
-case class GradientPattern(
-    a: color.Color,
-    b: color.Color,
-    override val transform: matrix.Matrix = matrix.Matrix.identity()
-) extends Pattern(transform) {
-
-  def patternAt(point: tuple.Tuple): color.Color = {
-    // Get the fractional part of x coordinate for interpolation
-    val distance = point.x - math.floor(point.x)
-
-    // Linear interpolation between colors a and b
-    color.Color(
-      a.red + distance * (b.red - a.red),
-      a.green + distance * (b.green - a.green),
-      a.blue + distance * (b.blue - a.blue)
-    )
-  }
-
-  def withTransform(newTransform: matrix.Matrix): GradientPattern = {
-    GradientPattern(a, b, newTransform)
-  }
 }

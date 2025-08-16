@@ -137,7 +137,7 @@ class PatternSuite extends munit.FunSuite {
   }
 
   test("A gradient linearly interpolates between colors") {
-    val pattern = GradientPattern(white, black)
+    val pattern = gradientPattern(white, black)
 
     // At x=0, should be white
     assertEquals(
