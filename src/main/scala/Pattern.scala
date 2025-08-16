@@ -5,19 +5,38 @@ import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.matrix
 import com.samuelcantrell.raytracer.shape
 
-// Base trait for all patterns
-trait Pattern {
-  def transform: matrix.Matrix
+// Base Pattern class with common transformation functionality
+abstract class Pattern(
+    val transform: matrix.Matrix = matrix.Matrix.identity()
+) {
+  // Abstract method that concrete patterns must implement
   def patternAt(point: tuple.Tuple): color.Color
+
+  // Method to create a new pattern with a different transform
   def withTransform(newTransform: matrix.Matrix): Pattern
 }
 
-// Stripe pattern implementation
+// Test pattern implementation for testing base functionality
+case class TestPattern(
+    override val transform: matrix.Matrix = matrix.Matrix.identity()
+) extends Pattern(transform) {
+  def patternAt(point: tuple.Tuple): color.Color = {
+    // Return a color based on the point coordinates
+    color.Color(point.x, point.y, point.z)
+  }
+
+  def withTransform(newTransform: matrix.Matrix): TestPattern = {
+    TestPattern(newTransform)
+  }
+}
+
+// Stripe pattern implementation using the base
 case class StripePattern(
     a: color.Color,
     b: color.Color,
-    transform: matrix.Matrix = matrix.Matrix.identity()
-) extends Pattern {
+    override val transform: matrix.Matrix = matrix.Matrix.identity()
+) extends Pattern(transform) {
+
   def patternAt(point: tuple.Tuple): color.Color = {
     // Take the floor of x coordinate to determine which stripe we're in
     val stripeIndex = math.floor(point.x).toInt
@@ -26,18 +45,17 @@ case class StripePattern(
   }
 
   def withTransform(newTransform: matrix.Matrix): StripePattern = {
-    this.copy(transform = newTransform)
+    StripePattern(a, b, newTransform)
   }
 }
 
 // Factory functions
-def stripePattern(a: color.Color, b: color.Color): StripePattern = {
-  StripePattern(a, b)
+def testPattern(): TestPattern = {
+  TestPattern()
 }
 
-// Function to get color at a specific point for a stripe pattern
-def stripeAt(pattern: StripePattern, point: tuple.Tuple): color.Color = {
-  pattern.patternAt(point)
+def stripePattern(a: color.Color, b: color.Color): StripePattern = {
+  StripePattern(a, b)
 }
 
 // Function to set pattern transform
@@ -48,8 +66,8 @@ def setPatternTransform[T <: Pattern](
   pattern.withTransform(transform).asInstanceOf[T]
 }
 
-// Function to get color at a point on an object with transformations
-def stripeAtObject(
+// General function to get pattern color at a point on a shape
+def patternAtShape(
     pattern: Pattern,
     obj: shape.Shape,
     worldPoint: tuple.Tuple
@@ -62,4 +80,17 @@ def stripeAtObject(
 
   // Get the color at the pattern point
   pattern.patternAt(patternPoint)
+}
+
+// Backward compatibility functions
+def stripeAt(pattern: StripePattern, point: tuple.Tuple): color.Color = {
+  pattern.patternAt(point)
+}
+
+def stripeAtObject(
+    pattern: Pattern,
+    obj: shape.Shape,
+    worldPoint: tuple.Tuple
+): color.Color = {
+  patternAtShape(pattern, obj, worldPoint)
 }

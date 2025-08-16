@@ -3,8 +3,9 @@ import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.sphere
 import com.samuelcantrell.raytracer.transformation
+import com.samuelcantrell.raytracer.matrix
 
-class PatternsSuite extends munit.FunSuite {
+class PatternSuite extends munit.FunSuite {
 
   // Background constants
   val black = color.Color(0, 0, 0)
@@ -80,39 +81,58 @@ class PatternsSuite extends munit.FunSuite {
     )
   }
 
-  test("Stripes with an object transformation") {
-    val obj = sphere.sphere()
-    val objTransformed =
-      sphere.setTransform(obj, transformation.scaling(2, 2, 2))
-    val pattern = stripePattern(white, black)
-    val c = stripeAtObject(pattern, objTransformed, tuple.makePoint(1.5, 0, 0))
+  test("The default pattern transformation") {
+    val pattern = testPattern()
+    val identity = matrix.Matrix.identity()
 
-    assertEquals(color.isEqual(c, white), true)
+    assertEquals(matrix.isEqual(pattern.transform, identity), true)
   }
 
-  test("Stripes with a pattern transformation") {
-    val obj = sphere.sphere()
-    val pattern = stripePattern(white, black)
+  test("Assigning a transformation") {
+    val pattern = testPattern()
+    val transformedPattern =
+      setPatternTransform(pattern, transformation.translation(1, 2, 3))
+    val expected = transformation.translation(1, 2, 3)
+
+    assertEquals(matrix.isEqual(transformedPattern.transform, expected), true)
+  }
+
+  test("A pattern with an object transformation") {
+    val shape = sphere.sphere()
+    val shapeTransformed =
+      sphere.setTransform(shape, transformation.scaling(2, 2, 2))
+    val pattern = testPattern()
+    val c = patternAtShape(pattern, shapeTransformed, tuple.makePoint(2, 3, 4))
+    val expected = color.Color(1, 1.5, 2)
+
+    assertEquals(color.isEqual(c, expected), true)
+  }
+
+  test("A pattern with a pattern transformation") {
+    val shape = sphere.sphere()
+    val pattern = testPattern()
     val patternTransformed =
       setPatternTransform(pattern, transformation.scaling(2, 2, 2))
-    val c = stripeAtObject(patternTransformed, obj, tuple.makePoint(1.5, 0, 0))
+    val c = patternAtShape(patternTransformed, shape, tuple.makePoint(2, 3, 4))
+    val expected = color.Color(1, 1.5, 2)
 
-    assertEquals(color.isEqual(c, white), true)
+    assertEquals(color.isEqual(c, expected), true)
   }
 
-  test("Stripes with both an object and a pattern transformation") {
-    val obj = sphere.sphere()
-    val objTransformed =
-      sphere.setTransform(obj, transformation.scaling(2, 2, 2))
-    val pattern = stripePattern(white, black)
+  test("A pattern with both an object and a pattern transformation") {
+    val shape = sphere.sphere()
+    val shapeTransformed =
+      sphere.setTransform(shape, transformation.scaling(2, 2, 2))
+    val pattern = testPattern()
     val patternTransformed =
-      setPatternTransform(pattern, transformation.translation(0.5, 0, 0))
-    val c = stripeAtObject(
+      setPatternTransform(pattern, transformation.translation(0.5, 1, 1.5))
+    val c = patternAtShape(
       patternTransformed,
-      objTransformed,
-      tuple.makePoint(2.5, 0, 0)
+      shapeTransformed,
+      tuple.makePoint(2.5, 3, 3.5)
     )
+    val expected = color.Color(0.75, 0.5, 0.25)
 
-    assertEquals(color.isEqual(c, white), true)
+    assertEquals(color.isEqual(c, expected), true)
   }
 }
