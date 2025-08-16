@@ -7,6 +7,8 @@ import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.transformation
+import com.samuelcantrell.raytracer.intersection
+import com.samuelcantrell.raytracer.plane
 
 class WorldSuite extends munit.FunSuite {
 
@@ -207,5 +209,73 @@ class WorldSuite extends munit.FunSuite {
     val expected = color.Color(0.1, 0.1, 0.1)
 
     assertEquals(color.isEqual(c, expected), true)
+  }
+
+  test("The reflected color for a nonreflective material") {
+    val w = defaultWorld()
+    val r = ray.ray(tuple.makePoint(0, 0, 0), tuple.makeVector(0, 0, 1))
+    val s = w.objects(1) // the second object in w
+    val shapeWithAmbient =
+      shape.setMaterial(s, s.objectMaterial.copy(ambient = 1.0))
+    val i = intersection.intersection(1, shapeWithAmbient)
+    val comps = intersection.prepareComputations(i, r)
+    val c = reflectedColor(w, comps)
+    val expected = color.Color(0, 0, 0)
+
+    assertEquals(color.isEqual(c, expected), true)
+  }
+
+  test("The reflected color for a reflective material") {
+    val w = defaultWorld()
+    val planeMaterial = material.material().copy(reflective = 0.5)
+    val planeTransform = transformation.translation(0, -1, 0)
+    val shape = plane
+      .plane()
+      .withMaterial(planeMaterial)
+      .withTransform(planeTransform)
+    val wWithPlane = w.copy(objects = w.objects :+ shape)
+
+    val sqrt2Over2 = math.sqrt(2) / 2
+    val r = ray.ray(
+      tuple.makePoint(0, 0, -3),
+      tuple.makeVector(0, -sqrt2Over2, sqrt2Over2)
+    )
+    val i = intersection.intersection(math.sqrt(2), shape)
+    val comps = intersection.prepareComputations(i, r)
+    val c = reflectedColor(wWithPlane, comps)
+    val expected = color.Color(0.19032, 0.2379, 0.14274)
+
+    assertEquals(color.isEqual(c, expected, 0.0001), true)
+  }
+
+  test("shade_hit() with a reflective material") {
+    val w = defaultWorld()
+
+    // Create a reflective plane
+    val shape = plane.plane()
+    val reflectiveMaterial = material.material().copy(reflective = 0.5)
+    val shapeWithMaterial = plane.setMaterial(shape, reflectiveMaterial)
+    val shapeWithTransform = plane.setTransform(
+      shapeWithMaterial,
+      transformation.translation(0, -1, 0)
+    )
+
+    // Add shape to world
+    val wWithShape = w.copy(objects = w.objects :+ shapeWithTransform)
+
+    // Create ray and intersection
+    val sqrt2over2 = math.sqrt(2) / 2
+    val r = ray.ray(
+      tuple.makePoint(0, 0, -3),
+      tuple.makeVector(0, -sqrt2over2, sqrt2over2)
+    )
+    val i = intersection.intersection(math.sqrt(2), shapeWithTransform)
+
+    // Prepare computations and shade
+    val comps = intersection.prepareComputations(i, r)
+    val c = shadeHit(wWithShape, comps)
+
+    val expected = color.Color(0.87677, 0.92436, 0.82918)
+    assertEquals(color.isEqual(c, expected, 0.0001), true)
   }
 }

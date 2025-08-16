@@ -18,6 +18,7 @@ case class Computations(
     overPoint: tuple.Tuple,
     eyev: tuple.Tuple,
     normalv: tuple.Tuple,
+    reflectv: tuple.Tuple,
     inside: Boolean
 )
 
@@ -51,6 +52,9 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
     normalv = tuple.negate(normalv)
   }
 
+  // Compute the reflection vector
+  val reflectv = tuple.reflect(r.direction, normalv)
+
   // Compute the over point - slightly offset in the direction of the normal
   val overPoint = tuple.add(point, tuple.multiply(normalv, equality.EPSILON))
 
@@ -61,6 +65,7 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
     overPoint = overPoint,
     eyev = eyev,
     normalv = normalv,
+    reflectv = reflectv,
     inside = inside
   )
 }

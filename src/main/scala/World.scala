@@ -78,11 +78,27 @@ def isShadowed(w: World, point: tuple.Tuple): Boolean = {
   }
 }
 
+def reflectedColor(w: World, comps: intersection.Computations): color.Color = {
+  // If the material is not reflective, return black
+  if (comps.obj.objectMaterial.reflective == 0.0) {
+    color.Color(0, 0, 0)
+  } else {
+    // Create a new ray in the reflection direction
+    val reflectRay = ray.ray(comps.overPoint, comps.reflectv)
+
+    // Get the color of the reflected ray
+    val reflectedColor = colorAt(w, reflectRay)
+
+    // Scale by the reflectivity of the material
+    color.multiply(reflectedColor, comps.obj.objectMaterial.reflective)
+  }
+}
+
 def shadeHit(w: World, comps: intersection.Computations): color.Color = {
   w.lightSource match {
     case Some(light) =>
       val shadowed = isShadowed(w, comps.overPoint)
-      material.lighting(
+      val surfaceColor = material.lighting(
         comps.obj.objectMaterial,
         comps.obj,
         light,
@@ -91,6 +107,10 @@ def shadeHit(w: World, comps: intersection.Computations): color.Color = {
         comps.normalv,
         shadowed
       )
+
+      val reflected = reflectedColor(w, comps)
+
+      color.add(surfaceColor, reflected)
     case None =>
       color.Color(0, 0, 0) // No light source, return black
   }

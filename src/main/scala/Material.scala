@@ -11,11 +11,41 @@ case class Material(
     diffuse: Double = 0.9,
     specular: Double = 0.9,
     shininess: Double = 200.0,
+    reflective: Double = 0.0,
     materialPattern: Option[pattern.Pattern] = None
 )
 
 def material(): Material = {
   Material()
+}
+
+// Convenience functions for setting properties
+def setColor(m: Material, c: color.Color): Material = {
+  m.copy(materialColor = c)
+}
+
+def setAmbient(m: Material, ambient: Double): Material = {
+  m.copy(ambient = ambient)
+}
+
+def setDiffuse(m: Material, diffuse: Double): Material = {
+  m.copy(diffuse = diffuse)
+}
+
+def setSpecular(m: Material, specular: Double): Material = {
+  m.copy(specular = specular)
+}
+
+def setShininess(m: Material, shininess: Double): Material = {
+  m.copy(shininess = shininess)
+}
+
+def setReflective(m: Material, reflective: Double): Material = {
+  m.copy(reflective = reflective)
+}
+
+def setPattern(m: Material, materialPattern: pattern.Pattern): Material = {
+  m.copy(materialPattern = Some(materialPattern))
 }
 
 def lighting(
