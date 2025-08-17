@@ -9,6 +9,7 @@ import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.material
+import com.samuelcantrell.raytracer.material.lighting
 
 case class World(
     objects: Vector[shape.Shape] = Vector.empty,
@@ -155,7 +156,7 @@ def shadeHit(
   w.lightSource match {
     case Some(light) =>
       val shadowed = isShadowed(w, comps.overPoint)
-      val surface = material.lighting(
+      val surface = lighting(
         comps.obj.objectMaterial,
         comps.obj,
         light,
@@ -167,8 +168,17 @@ def shadeHit(
       val reflected = reflectedColor(w, comps, remaining)
       val refracted = refracted_color(w, comps, remaining)
 
-      // Combine surface color, reflected color, and refracted color
-      color.add(color.add(surface, reflected), refracted)
+      // If the material is both reflective and transparent, use Schlick approximation
+      val material = comps.obj.objectMaterial
+      if (material.reflective > 0 && material.transparency > 0) {
+        val reflectance = intersection.schlick(comps)
+        val reflectedWeighted = color.multiply(reflected, reflectance)
+        val refractedWeighted = color.multiply(refracted, 1 - reflectance)
+        color.add(color.add(surface, reflectedWeighted), refractedWeighted)
+      } else {
+        // Combine surface color, reflected color, and refracted color normally
+        color.add(color.add(surface, reflected), refracted)
+      }
     case None =>
       color.Color(0, 0, 0) // No light source, return black
   }

@@ -117,3 +117,25 @@ private def calculateRefractiveIndices(hit: Intersection, xs: Intersections): (D
 
   (n1, n2)
 }
+
+def schlick(comps: Computations): Double = {
+  // Find the cosine of the angle between the eye and normal vectors
+  var cos = tuple.dot(comps.eyev, comps.normalv)
+  
+  // Total internal reflection can only occur if n1 > n2
+  if (comps.n1 > comps.n2) {
+    val n = comps.n1 / comps.n2
+    val sin2T = n * n * (1.0 - cos * cos)
+    if (sin2T > 1.0) {
+      return 1.0
+    }
+    
+    // Compute cosine of theta_t using trig identity
+    val cosT = math.sqrt(1.0 - sin2T)
+    // When n1 > n2, use cos(theta_t) instead
+    cos = cosT
+  }
+  
+  val r0 = math.pow((comps.n1 - comps.n2) / (comps.n1 + comps.n2), 2)
+  r0 + (1 - r0) * math.pow(1 - cos, 5)
+}

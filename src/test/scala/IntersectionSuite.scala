@@ -5,6 +5,7 @@ import com.samuelcantrell.raytracer.tuple.makePoint
 import com.samuelcantrell.raytracer.tuple.makeVector
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.equality
+import com.samuelcantrell.raytracer.equality.almostEqual
 
 class IntersectionSuite extends munit.FunSuite {
 
@@ -204,5 +205,47 @@ class IntersectionSuite extends munit.FunSuite {
     
     assertEquals(comps.underPoint.z > equality.EPSILON / 2, true)
     assertEquals(comps.point.z < comps.underPoint.z, true)
+  }
+
+  test("The Schlick approximation under total internal reflection") {
+    val shape = sphere.glass_sphere()
+    val sqrt2over2 = math.sqrt(2) / 2
+    val r = ray(makePoint(0, 0, sqrt2over2), makeVector(0, 1, 0))
+    val xs = intersections(
+      intersection(-sqrt2over2, shape),
+      intersection(sqrt2over2, shape)
+    )
+    
+    val comps = prepareComputations(xs(1), r, xs)
+    val reflectance = schlick(comps)
+    
+    assertEquals(reflectance, 1.0)
+  }
+
+  test("The Schlick approximation with a perpendicular viewing angle") {
+    val shape = sphere.glass_sphere()
+    val r = ray(makePoint(0, 0, 0), makeVector(0, 1, 0))
+    val xs = intersections(
+      intersection(-1, shape),
+      intersection(1, shape)
+    )
+    
+    val comps = prepareComputations(xs(1), r, xs)
+    val reflectance = schlick(comps)
+    
+    assertEquals(almostEqual(reflectance, 0.04, 0.001), true)
+  }
+
+  test("The Schlick approximation with small angle and n2 > n1") {
+    val shape = sphere.glass_sphere()
+    val r = ray(makePoint(0, 0.99, -2), makeVector(0, 0, 1))
+    val xs = intersections(
+      intersection(1.8589, shape)
+    )
+    
+    val comps = prepareComputations(xs(0), r, xs)
+    val reflectance = schlick(comps)
+    
+    assertEquals(almostEqual(reflectance, 0.48873, 0.001), true)
   }
 }
