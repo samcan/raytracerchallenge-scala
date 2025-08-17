@@ -8,6 +8,7 @@ import com.samuelcantrell.raytracer.light
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.camera
 import com.samuelcantrell.raytracer.ppmfile
+import com.samuelcantrell.raytracer.pattern
 
 @main def raytrace(): Unit = {
   println("Creating raytraced scene...")
@@ -17,8 +18,10 @@ import com.samuelcantrell.raytracer.ppmfile
   val floorMaterial = material
     .material()
     .copy(
-      materialColor = color.Color(1, 0.9, 0.9),
-      specular = 0
+      materialPattern =
+        Some(pattern.stripePattern(color.Color(0, 0, 0), color.Color(1, 1, 1))),
+      specular = 0,
+      reflective = 0.2
     )
   val floorWithMaterial = plane.setMaterial(floor, floorMaterial)
 
@@ -45,9 +48,10 @@ import com.samuelcantrell.raytracer.ppmfile
   val rightMaterial = material
     .material()
     .copy(
-      materialColor = color.Color(0.5, 1, 0.1),
-      diffuse = 0.7,
-      specular = 0.3
+      materialColor = color.Color(0.9, 0.9, 0.9),
+      diffuse = 0.05,
+      specular = 0.98,
+      reflective = 0.98
     )
   val rightWithMaterial = sphere.setMaterial(rightTransformed, rightMaterial)
 
@@ -82,7 +86,7 @@ import com.samuelcantrell.raytracer.ppmfile
   )
 
   // Create the camera
-  val cam = camera.camera(600, 300, math.Pi / 3)
+  val cam = camera.camera(400, 300, math.Pi / 3)
   val cameraTransform = transformation.viewTransform(
     tuple.makePoint(0, 1.5, -5),
     tuple.makePoint(0, 1, 0),
