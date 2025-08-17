@@ -307,4 +307,19 @@ class WorldSuite extends munit.FunSuite {
     val expected = color.Color(0, 0, 0)
     assertEquals(color.isEqual(colorResult, expected), true)
   }
+
+  test("The refracted color with an opaque surface") {
+    val w = defaultWorld()
+    val shape = w.objects(0) // the first object in w
+    val r = ray.ray(tuple.makePoint(0, 0, -5), tuple.makeVector(0, 0, 1))
+    val xs = intersection.intersections(
+      intersection.intersection(4, shape),
+      intersection.intersection(6, shape)
+    )
+    
+    val comps = intersection.prepareComputations(xs(0), r, xs)
+    val c = refracted_color(w, comps, 5)
+    
+    assertEquals(color.isEqual(c, color.Color(0, 0, 0)), true)
+  }
 }

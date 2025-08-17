@@ -103,6 +103,50 @@ def reflectedColor(
   color.multiply(reflectedColorValue, comps.obj.objectMaterial.reflective)
 }
 
+def refracted_color(
+    w: World,
+    comps: intersection.Computations,
+    remaining: Int = 5
+): color.Color = {
+  // If remaining is less than 1, return black to prevent infinite recursion
+  if (remaining < 1) {
+    return color.Color(0, 0, 0)
+  }
+
+  // If the material is not transparent, return black
+  if (comps.obj.objectMaterial.transparency == 0.0) {
+    return color.Color(0, 0, 0)
+  }
+
+  // Check for total internal reflection
+  val nRatio = comps.n1 / comps.n2
+  val cosI = tuple.dot(comps.eyev, comps.normalv)
+  val sin2T = nRatio * nRatio * (1 - cosI * cosI)
+  
+  if (sin2T > 1) {
+    // Total internal reflection
+    return color.Color(0, 0, 0)
+  }
+
+  // Find cos(theta_t) via trigonometric identity
+  val cosT = math.sqrt(1.0 - sin2T)
+
+  // Compute the direction of the refracted ray
+  val direction = tuple.subtract(
+    tuple.multiply(comps.normalv, nRatio * cosI - cosT),
+    tuple.multiply(comps.eyev, nRatio)
+  )
+
+  // Create the refracted ray
+  val refractRay = ray.ray(comps.underPoint, direction)
+
+  // Find the color of the refracted ray, decrementing remaining to avoid infinite recursion
+  val refractedColorValue = colorAt(w, refractRay, remaining - 1)
+
+  // Return the refracted color multiplied by the transparency value
+  color.multiply(refractedColorValue, comps.obj.objectMaterial.transparency)
+}
+
 def shadeHit(
     w: World,
     comps: intersection.Computations,
