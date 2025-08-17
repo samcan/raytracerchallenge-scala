@@ -11,7 +11,8 @@ case class Material(
     diffuse: Double = 0.9,
     specular: Double = 0.9,
     shininess: Double = 200.0,
-    materialPattern: Option[pattern.Pattern] = None
+    materialPattern: Option[pattern.Pattern] = None,
+    reflective: Double = 0.0
 )
 
 def material(): Material = {
