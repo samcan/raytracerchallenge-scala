@@ -414,4 +414,46 @@ class WorldSuite extends munit.FunSuite {
     
     assertEquals(color.isEqual(c, color.Color(0, 0.99888, 0.04725), 0.0001), true)
   }
+
+  test("shade_hit() with a transparent material") {
+    val w = defaultWorld()
+    
+    // Create floor plane
+    val floor = plane.plane()
+    val floorMaterial = material.material().copy(
+      transparency = 0.5,
+      refractive_index = 1.5
+    )
+    val floorWithMaterial = plane.setMaterial(floor, floorMaterial)
+    val floorWithTransform = plane.setTransform(
+      floorWithMaterial,
+      transformation.translation(0, -1, 0)
+    )
+    
+    // Create ball sphere
+    val ball = sphere.sphere()
+    val ballMaterial = material.material().copy(
+      materialColor = color.Color(1, 0, 0),
+      ambient = 0.5
+    )
+    val ballWithMaterial = sphere.setMaterial(ball, ballMaterial)
+    val ballWithTransform = sphere.setTransform(
+      ballWithMaterial,
+      transformation.translation(0, -3.5, -0.5)
+    )
+    
+    // Add floor and ball to world
+    val wWithObjects = w.copy(objects = w.objects ++ Vector(floorWithTransform, ballWithTransform))
+    
+    val sqrt2over2 = math.sqrt(2) / 2
+    val r = ray.ray(tuple.makePoint(0, 0, -3), tuple.makeVector(0, -sqrt2over2, sqrt2over2))
+    val xs = intersection.intersections(
+      intersection.intersection(math.sqrt(2), floorWithTransform)
+    )
+    
+    val comps = intersection.prepareComputations(xs(0), r, xs)
+    val colorResult = shadeHit(wWithObjects, comps, 5)
+    
+    assertEquals(color.isEqual(colorResult, color.Color(0.93642, 0.68642, 0.68642), 0.0001), true)
+  }
 }

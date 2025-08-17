@@ -165,9 +165,10 @@ def shadeHit(
         shadowed
       )
       val reflected = reflectedColor(w, comps, remaining)
+      val refracted = refracted_color(w, comps, remaining)
 
-      // Combine surface color and reflected color
-      color.add(surface, reflected)
+      // Combine surface color, reflected color, and refracted color
+      color.add(color.add(surface, reflected), refracted)
     case None =>
       color.Color(0, 0, 0) // No light source, return black
   }
