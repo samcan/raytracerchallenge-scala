@@ -90,8 +90,9 @@ private def calculateRefractiveIndices(hit: Intersection, xs: Intersections): (D
   var containers = List.empty[shape.Shape]
   var n1 = 1.0
   var n2 = 1.0
+  var hitProcessed = false
 
-  for (i <- xs.values) {
+  for (i <- xs.values if !hitProcessed) {
     // If this is the hit we're interested in, record n1
     if (i == hit) {
       n1 = if (containers.isEmpty) 1.0 else containers.last.objectMaterial.refractive_index
@@ -107,10 +108,10 @@ private def calculateRefractiveIndices(hit: Intersection, xs: Intersections): (D
       containers = containers :+ i.obj
     }
 
-    // If this is the hit we're interested in, record n2 and break
+    // If this is the hit we're interested in, record n2 and stop processing
     if (i == hit) {
       n2 = if (containers.isEmpty) 1.0 else containers.last.objectMaterial.refractive_index
-      return (n1, n2)
+      hitProcessed = true
     }
   }
 
