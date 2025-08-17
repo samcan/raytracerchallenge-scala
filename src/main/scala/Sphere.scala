@@ -61,6 +61,15 @@ def sphere(): Sphere = {
   Sphere()
 }
 
+def glass_sphere(): Sphere = {
+  Sphere(
+    objectMaterial = material.Material(
+      transparency = 1.0,
+      refractive_index = 1.5
+    )
+  )
+}
+
 // Keep the old functions for backward compatibility, but delegate to the shape functions
 def setTransform(s: Sphere, t: matrix.Matrix): Sphere = {
   shape.setTransform(s, t)
