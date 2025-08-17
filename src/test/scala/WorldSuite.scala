@@ -9,6 +9,7 @@ import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.intersection
+import com.samuelcantrell.raytracer.pattern
 
 class WorldSuite extends munit.FunSuite {
 
@@ -376,5 +377,41 @@ class WorldSuite extends munit.FunSuite {
     val c = refracted_color(wWithTransparentShape, comps, 5)
     
     assertEquals(color.isEqual(c, color.Color(0, 0, 0)), true)
+  }
+
+  test("The refracted color with a refracted ray") {
+    val w = defaultWorld()
+    val A = w.objects(0) // the first object in w
+    val B = w.objects(1) // the second object in w
+    
+    // Modify A to have ambient = 1.0 and test pattern
+    val AMaterial = A.objectMaterial.copy(
+      ambient = 1.0,
+      materialPattern = Some(pattern.testPattern())
+    )
+    val AModified = A.withMaterial(AMaterial)
+    
+    // Modify B to have transparency and refractive index
+    val BMaterial = B.objectMaterial.copy(
+      transparency = 1.0,
+      refractive_index = 1.5
+    )
+    val BModified = B.withMaterial(BMaterial)
+    
+    // Update the world with modified objects
+    val wModified = w.copy(objects = Vector(AModified, BModified))
+    
+    val r = ray.ray(tuple.makePoint(0, 0, 0.1), tuple.makeVector(0, 1, 0))
+    val xs = intersection.intersections(
+      intersection.intersection(-0.9899, AModified),
+      intersection.intersection(-0.4899, BModified),
+      intersection.intersection(0.4899, BModified),
+      intersection.intersection(0.9899, AModified)
+    )
+    
+    val comps = intersection.prepareComputations(xs(2), r, xs)
+    val c = refracted_color(wModified, comps, 5)
+    
+    assertEquals(color.isEqual(c, color.Color(0, 0.99888, 0.04725), 0.0001), true)
   }
 }
