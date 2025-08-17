@@ -322,4 +322,30 @@ class WorldSuite extends munit.FunSuite {
     
     assertEquals(color.isEqual(c, color.Color(0, 0, 0)), true)
   }
+
+  test("The refracted color at the maximum recursive depth") {
+    val w = defaultWorld()
+    val shape = w.objects(0) // the first object in w
+    
+    // Modify the shape to have transparency and refractive index
+    val transparentMaterial = shape.objectMaterial.copy(
+      transparency = 1.0,
+      refractive_index = 1.5
+    )
+    val transparentShape = shape.withMaterial(transparentMaterial)
+    
+    // Update the world with the modified shape
+    val wWithTransparentShape = w.copy(objects = w.objects.updated(0, transparentShape))
+    
+    val r = ray.ray(tuple.makePoint(0, 0, -5), tuple.makeVector(0, 0, 1))
+    val xs = intersection.intersections(
+      intersection.intersection(4, transparentShape),
+      intersection.intersection(6, transparentShape)
+    )
+    
+    val comps = intersection.prepareComputations(xs(0), r, xs)
+    val c = refracted_color(wWithTransparentShape, comps, 0)
+    
+    assertEquals(color.isEqual(c, color.Color(0, 0, 0)), true)
+  }
 }
