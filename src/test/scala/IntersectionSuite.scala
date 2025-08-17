@@ -193,4 +193,16 @@ class IntersectionSuite extends munit.FunSuite {
       assertEquals(comps.n2, expectedN2, s"n2 mismatch at index $index")
     }
   }
+
+  test("The under point is offset below the surface") {
+    val r = ray(makePoint(0, 0, -5), makeVector(0, 0, 1))
+    val shape = sphere.setTransform(sphere.glass_sphere(), transformation.translation(0, 0, 1))
+    val i = intersection(5, shape)
+    val xs = intersections(i)
+    
+    val comps = prepareComputations(i, r, xs)
+    
+    assertEquals(comps.underPoint.z > equality.EPSILON / 2, true)
+    assertEquals(comps.point.z < comps.underPoint.z, true)
+  }
 }
