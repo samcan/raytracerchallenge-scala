@@ -19,7 +19,9 @@ case class Computations(
     eyev: tuple.Tuple,
     normalv: tuple.Tuple,
     inside: Boolean,
-    reflectv: tuple.Tuple
+    reflectv: tuple.Tuple,
+    n1: Double,
+    n2: Double
 )
 
 def intersection(t: Double, s: shape.Shape): Intersection = {
@@ -35,6 +37,10 @@ def hit(xs: Intersections): Option[Intersection] = {
 }
 
 def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
+  prepareComputations(i, r, Intersections(Array(i)))
+}
+
+def prepareComputations(i: Intersection, r: ray.Ray, xs: Intersections): Computations = {
   // Compute the point where the intersection occurred
   val point = ray.position(r, i.t)
 
@@ -58,6 +64,9 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
   // Compute the reflection vector
   val reflectv = tuple.reflect(r.direction, normalv)
 
+  // Calculate n1 and n2 for refraction
+  val (n1, n2) = calculateRefractiveIndices(i, xs)
+
   Computations(
     t = i.t,
     obj = i.obj,
@@ -66,6 +75,39 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
     eyev = eyev,
     normalv = normalv,
     inside = inside,
-    reflectv = reflectv
+    reflectv = reflectv,
+    n1 = n1,
+    n2 = n2
   )
+}
+
+private def calculateRefractiveIndices(hit: Intersection, xs: Intersections): (Double, Double) = {
+  var containers = List.empty[shape.Shape]
+  var n1 = 1.0
+  var n2 = 1.0
+
+  for (i <- xs.values) {
+    // If this is the hit we're interested in, record n1
+    if (i == hit) {
+      n1 = if (containers.isEmpty) 1.0 else containers.last.objectMaterial.refractive_index
+    }
+
+    // Check if this intersection's object is already in containers
+    val objectIndex = containers.indexOf(i.obj)
+    if (objectIndex >= 0) {
+      // Remove the object (we're exiting it)
+      containers = containers.patch(objectIndex, Nil, 1)
+    } else {
+      // Add the object (we're entering it)
+      containers = containers :+ i.obj
+    }
+
+    // If this is the hit we're interested in, record n2 and break
+    if (i == hit) {
+      n2 = if (containers.isEmpty) 1.0 else containers.last.objectMaterial.refractive_index
+      return (n1, n2)
+    }
+  }
+
+  (n1, n2)
 }
