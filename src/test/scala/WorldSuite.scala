@@ -348,4 +348,33 @@ class WorldSuite extends munit.FunSuite {
     
     assertEquals(color.isEqual(c, color.Color(0, 0, 0)), true)
   }
+
+  test("The refracted color under total internal reflection") {
+    val w = defaultWorld()
+    val shape = w.objects(0) // the first object in w
+    
+    // Modify the shape to have transparency and refractive index
+    val transparentMaterial = shape.objectMaterial.copy(
+      transparency = 1.0,
+      refractive_index = 1.5
+    )
+    val transparentShape = shape.withMaterial(transparentMaterial)
+    
+    // Update the world with the modified shape
+    val wWithTransparentShape = w.copy(objects = w.objects.updated(0, transparentShape))
+    
+    val sqrt2over2 = math.sqrt(2) / 2
+    val r = ray.ray(tuple.makePoint(0, 0, sqrt2over2), tuple.makeVector(0, 1, 0))
+    val xs = intersection.intersections(
+      intersection.intersection(-sqrt2over2, transparentShape),
+      intersection.intersection(sqrt2over2, transparentShape)
+    )
+    
+    // NOTE: this time you're inside the sphere, so you need
+    // to look at the second intersection, xs[1], not xs[0]
+    val comps = intersection.prepareComputations(xs(1), r, xs)
+    val c = refracted_color(wWithTransparentShape, comps, 5)
+    
+    assertEquals(color.isEqual(c, color.Color(0, 0, 0)), true)
+  }
 }
