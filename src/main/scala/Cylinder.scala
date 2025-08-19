@@ -6,6 +6,7 @@ import com.samuelcantrell.raytracer.intersection
 import com.samuelcantrell.raytracer.matrix
 import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.shape
+import com.samuelcantrell.raytracer.equality
 import java.util.UUID
 
 case class Cylinder(
@@ -62,9 +63,9 @@ case class Cylinder(
   def localNormalAt(localPoint: tuple.Tuple): tuple.Tuple = {
     val dist = localPoint.x * localPoint.x + localPoint.z * localPoint.z
 
-    if (dist < 1 && localPoint.y >= maximum - 1e-10) {
+    if (dist < 1 && localPoint.y >= maximum - equality.EPSILON) {
       tuple.makeVector(0, 1, 0)
-    } else if (dist < 1 && localPoint.y <= minimum + 1e-10) {
+    } else if (dist < 1 && localPoint.y <= minimum + equality.EPSILON) {
       tuple.makeVector(0, -1, 0)
     } else {
       tuple.makeVector(localPoint.x, 0, localPoint.z)
