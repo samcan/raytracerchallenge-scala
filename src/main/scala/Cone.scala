@@ -16,8 +16,9 @@ case class Cone(
     override val objectMaterial: material.Material = material.material(),
     override val minimum: Double = Double.NegativeInfinity,
     override val maximum: Double = Double.PositiveInfinity,
-    override val closed: Boolean = false
-) extends QuadricShape(id, transform, objectMaterial, minimum, maximum, closed) {
+    override val closed: Boolean = false,
+    override val parent: Option[shape.Shape] = None
+) extends QuadricShape(id, transform, objectMaterial, minimum, maximum, closed, parent) {
 
   // Cone-specific implementations
   protected def surfaceIntersectionCoefficients(localRay: ray.Ray): (Double, Double, Double) = {
@@ -62,6 +63,10 @@ case class Cone(
 
   def withMaterial(newMaterial: material.Material): Cone = {
     this.copy(objectMaterial = newMaterial)
+  }
+
+  def withParent(newParent: Option[shape.Shape]): Cone = {
+    this.copy(parent = newParent)
   }
 }
 

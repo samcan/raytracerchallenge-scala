@@ -92,4 +92,9 @@ class ShapeSuite extends munit.FunSuite {
 
     assertEquals(tuple.isEqual(n, expected, 0.00001), true)
   }
+
+  test("A shape has a parent attribute") {
+    val s = testShape()
+    assertEquals(s.parent, None)
+  }
 }

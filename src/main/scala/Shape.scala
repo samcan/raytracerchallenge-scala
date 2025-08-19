@@ -12,6 +12,7 @@ trait Shape {
   def id: String
   def transform: matrix.Matrix
   def objectMaterial: material.Material
+  def parent: Option[Shape]
 
   // Abstract methods that concrete shapes must implement
   def localIntersect(localRay: ray.Ray): intersection.Intersections
@@ -20,6 +21,7 @@ trait Shape {
   // Copy methods for immutability
   def withTransform(newTransform: matrix.Matrix): Shape
   def withMaterial(newMaterial: material.Material): Shape
+  def withParent(newParent: Option[Shape]): Shape
 }
 
 // General intersect function that works for all shapes
@@ -62,6 +64,7 @@ case class TestShape(
     id: String = UUID.randomUUID().toString,
     transform: matrix.Matrix = matrix.Matrix.identity(),
     objectMaterial: material.Material = material.material(),
+    parent: Option[Shape] = None,
     var savedRay: Option[ray.Ray] = None
 ) extends Shape {
 
@@ -84,6 +87,10 @@ case class TestShape(
 
   def withMaterial(newMaterial: material.Material): TestShape = {
     this.copy(objectMaterial = newMaterial)
+  }
+
+  def withParent(newParent: Option[Shape]): TestShape = {
+    this.copy(parent = newParent)
   }
 }
 

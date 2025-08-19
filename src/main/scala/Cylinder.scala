@@ -16,8 +16,9 @@ case class Cylinder(
     override val objectMaterial: material.Material = material.material(),
     override val minimum: Double = Double.NegativeInfinity,
     override val maximum: Double = Double.PositiveInfinity,
-    override val closed: Boolean = false
-) extends QuadricShape(id, transform, objectMaterial, minimum, maximum, closed) {
+    override val closed: Boolean = false,
+    override val parent: Option[shape.Shape] = None
+) extends QuadricShape(id, transform, objectMaterial, minimum, maximum, closed, parent) {
 
   // Cylinder-specific implementations
   protected def surfaceIntersectionCoefficients(localRay: ray.Ray): (Double, Double, Double) = {
@@ -52,6 +53,10 @@ case class Cylinder(
 
   def withMaterial(newMaterial: material.Material): Cylinder = {
     this.copy(objectMaterial = newMaterial)
+  }
+
+  def withParent(newParent: Option[shape.Shape]): Cylinder = {
+    this.copy(parent = newParent)
   }
 }
 

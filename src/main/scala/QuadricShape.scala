@@ -16,7 +16,8 @@ abstract class QuadricShape(
     val objectMaterial: material.Material = material.material(),
     val minimum: Double = Double.NegativeInfinity,
     val maximum: Double = Double.PositiveInfinity,
-    val closed: Boolean = false
+    val closed: Boolean = false,
+    val parent: Option[shape.Shape] = None
 ) extends shape.Shape {
 
   // Abstract methods that subclasses must implement

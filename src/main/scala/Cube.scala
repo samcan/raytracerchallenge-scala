@@ -11,7 +11,8 @@ import java.util.UUID
 case class Cube(
     id: String = UUID.randomUUID().toString,
     transform: matrix.Matrix = matrix.Matrix.identity(),
-    objectMaterial: material.Material = material.material()
+    objectMaterial: material.Material = material.material(),
+    parent: Option[shape.Shape] = None
 ) extends shape.Shape {
 
   def localIntersect(localRay: ray.Ray): intersection.Intersections = {
@@ -80,6 +81,10 @@ case class Cube(
 
   def withMaterial(newMaterial: material.Material): Cube = {
     this.copy(objectMaterial = newMaterial)
+  }
+
+  def withParent(newParent: Option[shape.Shape]): Cube = {
+    this.copy(parent = newParent)
   }
 }
 
