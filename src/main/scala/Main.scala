@@ -1,6 +1,8 @@
 import com.samuelcantrell.raytracer.sphere
 import com.samuelcantrell.raytracer.plane
 import com.samuelcantrell.raytracer.cube
+import com.samuelcantrell.raytracer.cylinder
+import com.samuelcantrell.raytracer.cone
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.color
@@ -92,6 +94,36 @@ import com.samuelcantrell.raytracer.pattern
     )
   val cubeWithMaterial = cube.setMaterial(cubeTransformed, cubeMaterial)
 
+  // Create a cylinder
+  val cylinderShape = cylinder.cylinder().copy(minimum = 0, maximum = 2, closed = true)
+  val cylinderTransform = transformation.translation(-2, 0, 1) *
+    transformation.scaling(0.5, 1, 0.5)
+  val cylinderTransformed = cylinder.setTransform(cylinderShape, cylinderTransform)
+  val cylinderMaterial = material
+    .material()
+    .copy(
+      materialColor = color.Color(0.2, 0.6, 0.9),
+      diffuse = 0.8,
+      specular = 0.3,
+      reflective = 0.1
+    )
+  val cylinderWithMaterial = cylinder.setMaterial(cylinderTransformed, cylinderMaterial)
+
+  // Create a cone
+  val coneShape = cone.cone().copy(minimum = -1, maximum = 0, closed = true)
+  val coneTransform = transformation.translation(0.5, 1, -2) *
+    transformation.scaling(0.8, 1, 0.8)
+  val coneTransformed = cone.setTransform(coneShape, coneTransform)
+  val coneMaterial = material
+    .material()
+    .copy(
+      materialColor = color.Color(0.9, 0.4, 0.1),
+      diffuse = 0.7,
+      specular = 0.4,
+      reflective = 0.05
+    )
+  val coneWithMaterial = cone.setMaterial(coneTransformed, coneMaterial)
+
   // Create the world with all objects
   val lightSource = light.pointLight(
     tuple.makePoint(-10, 10, -10),
@@ -104,7 +136,9 @@ import com.samuelcantrell.raytracer.pattern
       middleWithMaterial,
       rightWithMaterial,
       leftWithMaterial,
-      cubeWithMaterial
+      cubeWithMaterial,
+      cylinderWithMaterial,
+      coneWithMaterial
     ),
     lightSource = Some(lightSource)
   )
