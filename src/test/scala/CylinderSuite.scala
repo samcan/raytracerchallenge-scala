@@ -64,4 +64,36 @@ class CylinderSuite extends munit.FunSuite {
     assertEquals(equality.almostEqual(xs(0).t, 6.80798, 0.0001), true)
     assertEquals(equality.almostEqual(xs(1).t, 7.08872, 0.0001), true)
   }
+
+  test("Normal vector on a cylinder - point(1, 0, 0)") {
+    val cyl = cylinder()
+    val n = localNormalAt(cyl, tuple.makePoint(1, 0, 0))
+    val expected = tuple.makeVector(1, 0, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("Normal vector on a cylinder - point(0, 5, -1)") {
+    val cyl = cylinder()
+    val n = localNormalAt(cyl, tuple.makePoint(0, 5, -1))
+    val expected = tuple.makeVector(0, 0, -1)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("Normal vector on a cylinder - point(0, -2, 1)") {
+    val cyl = cylinder()
+    val n = localNormalAt(cyl, tuple.makePoint(0, -2, 1))
+    val expected = tuple.makeVector(0, 0, 1)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("Normal vector on a cylinder - point(-1, 1, 0)") {
+    val cyl = cylinder()
+    val n = localNormalAt(cyl, tuple.makePoint(-1, 1, 0))
+    val expected = tuple.makeVector(-1, 0, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
 }
