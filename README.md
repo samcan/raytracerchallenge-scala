@@ -16,13 +16,16 @@ This ray tracer currently supports:
 - **PPM image output** for rendered scenes
 
 ### Materials & Patterns
-- **Material properties**: color, ambient, diffuse, specular, shininess
+- **Material properties**: color, ambient, diffuse, specular, shininess, reflectivity, transparency, refractive index
 - **Surface patterns**: stripes, rings, gradients, checkerboards, and 3D checkerboards
 - **Pattern transformations**: scaling, rotation, translation
 - **Test patterns** for debugging and development
 
 ### Advanced Effects
 - **Reflections** with configurable reflectivity and recursive depth limiting
+- **Transparency and Refraction** with Snell's law and refractive indices
+- **Fresnel effects** using Schlick approximation for realistic glass materials
+- **Total internal reflection** for accurate light behavior in transparent objects
 
 ### Geometry & Transformations
 - **3D transformations**: translation, scaling, rotation, shearing
@@ -32,9 +35,9 @@ This ray tracer currently supports:
 
 ## Sample Output
 
-The raytracer can render complex scenes with multiple objects, reflections, and realistic lighting:
+The raytracer can render complex scenes with multiple objects, transparency, refraction, reflections, and realistic lighting:
 
-![Sample raytraced scene with reflections](docs/reflection.png)
+![Sample raytraced scene with transparency and reflections](docs/transparency.png)
 
 ## Getting Started
 
@@ -86,14 +89,14 @@ sbt test
 The default scene (in `Main.scala`) renders:
 - A black and white striped floor plane with reflectivity
 - Three spheres with different materials:
-  - **Middle sphere**: Green with medium reflectivity
+  - **Middle sphere**: Transparent glass sphere with refraction
   - **Right sphere**: Highly reflective metallic surface
   - **Left sphere**: Matte yellow-orange surface
 - Point light source positioned above and to the left
 
 You can modify the scene by editing `Main.scala` to experiment with different:
 - Object positions and scales
-- Material properties (colors, reflectivity)
+- Material properties (colors, reflectivity, transparency, refractive indices)
 - Lighting conditions
 - Camera angles and positions
 - Surface patterns
