@@ -34,9 +34,14 @@ import com.samuelcantrell.raytracer.pattern
   val middleMaterial = material
     .material()
     .copy(
-      materialColor = color.Color(0.1, 1, 0.5),
-      diffuse = 0.7,
-      specular = 0.3
+      materialColor = color.Color(0.1, 0.1, 0.1),
+      ambient = 0.0,
+      diffuse = 0.0,
+      specular = 0.9,
+      shininess = 300,
+      reflective = 0.1,
+      transparency = 0.9,
+      refractive_index = 1.5
     )
   val middleWithMaterial = sphere.setMaterial(middleTransformed, middleMaterial)
 
@@ -48,10 +53,11 @@ import com.samuelcantrell.raytracer.pattern
   val rightMaterial = material
     .material()
     .copy(
-      materialColor = color.Color(0.9, 0.9, 0.9),
+      materialColor = color.Color(0.1, 0.1, 0.1),
       diffuse = 0.05,
       specular = 0.98,
-      reflective = 0.98
+      reflective = 0.98,
+      shininess = 200
     )
   val rightWithMaterial = sphere.setMaterial(rightTransformed, rightMaterial)
 

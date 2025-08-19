@@ -16,10 +16,13 @@ case class Computations(
     obj: shape.Shape,
     point: tuple.Tuple,
     overPoint: tuple.Tuple,
+    underPoint: tuple.Tuple,
     eyev: tuple.Tuple,
     normalv: tuple.Tuple,
     inside: Boolean,
-    reflectv: tuple.Tuple
+    reflectv: tuple.Tuple,
+    n1: Double,
+    n2: Double
 )
 
 def intersection(t: Double, s: shape.Shape): Intersection = {
@@ -35,6 +38,10 @@ def hit(xs: Intersections): Option[Intersection] = {
 }
 
 def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
+  prepareComputations(i, r, Intersections(Array(i)))
+}
+
+def prepareComputations(i: Intersection, r: ray.Ray, xs: Intersections): Computations = {
   // Compute the point where the intersection occurred
   val point = ray.position(r, i.t)
 
@@ -55,17 +62,80 @@ def prepareComputations(i: Intersection, r: ray.Ray): Computations = {
   // Compute the over point - slightly offset in the direction of the normal
   val overPoint = tuple.add(point, tuple.multiply(normalv, equality.EPSILON))
 
+  // Compute the under point - slightly offset in the opposite direction of the normal
+  val underPoint = tuple.subtract(point, tuple.multiply(normalv, equality.EPSILON))
+
   // Compute the reflection vector
   val reflectv = tuple.reflect(r.direction, normalv)
+
+  // Calculate n1 and n2 for refraction
+  val (n1, n2) = calculateRefractiveIndices(i, xs)
 
   Computations(
     t = i.t,
     obj = i.obj,
     point = point,
     overPoint = overPoint,
+    underPoint = underPoint,
     eyev = eyev,
     normalv = normalv,
     inside = inside,
-    reflectv = reflectv
+    reflectv = reflectv,
+    n1 = n1,
+    n2 = n2
   )
+}
+
+private def calculateRefractiveIndices(hit: Intersection, xs: Intersections): (Double, Double) = {
+  var containers = List.empty[shape.Shape]
+  var n1 = 1.0
+  var n2 = 1.0
+  var hitProcessed = false
+
+  for (i <- xs.values if !hitProcessed) {
+    // If this is the hit we're interested in, record n1
+    if (i == hit) {
+      n1 = if (containers.isEmpty) 1.0 else containers.last.objectMaterial.refractive_index
+    }
+
+    // Check if this intersection's object is already in containers
+    val objectIndex = containers.indexOf(i.obj)
+    if (objectIndex >= 0) {
+      // Remove the object (we're exiting it)
+      containers = containers.patch(objectIndex, Nil, 1)
+    } else {
+      // Add the object (we're entering it)
+      containers = containers :+ i.obj
+    }
+
+    // If this is the hit we're interested in, record n2 and stop processing
+    if (i == hit) {
+      n2 = if (containers.isEmpty) 1.0 else containers.last.objectMaterial.refractive_index
+      hitProcessed = true
+    }
+  }
+
+  (n1, n2)
+}
+
+def schlick(comps: Computations): Double = {
+  // Find the cosine of the angle between the eye and normal vectors
+  var cos = tuple.dot(comps.eyev, comps.normalv)
+  
+  // Total internal reflection can only occur if n1 > n2
+  if (comps.n1 > comps.n2) {
+    val n = comps.n1 / comps.n2
+    val sin2T = n * n * (1.0 - cos * cos)
+    if (sin2T > 1.0) {
+      return 1.0
+    }
+    
+    // Compute cosine of theta_t using trig identity
+    val cosT = math.sqrt(1.0 - sin2T)
+    // When n1 > n2, use cos(theta_t) instead
+    cos = cosT
+  }
+  
+  val r0 = math.pow((comps.n1 - comps.n2) / (comps.n1 + comps.n2), 2)
+  r0 + (1 - r0) * math.pow(1 - cos, 5)
 }

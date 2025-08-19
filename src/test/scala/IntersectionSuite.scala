@@ -5,6 +5,7 @@ import com.samuelcantrell.raytracer.tuple.makePoint
 import com.samuelcantrell.raytracer.tuple.makeVector
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.equality
+import com.samuelcantrell.raytracer.equality.almostEqual
 
 class IntersectionSuite extends munit.FunSuite {
 
@@ -139,5 +140,112 @@ class IntersectionSuite extends munit.FunSuite {
 
     assertEquals(comps.overPoint.z < -equality.EPSILON / 2, true)
     assertEquals(comps.point.z > comps.overPoint.z, true)
+  }
+
+  test("Finding n1 and n2 at various intersections") {
+    // Test data: (index, n1, n2)
+    val testData = List(
+      (0, 1.0, 1.5),
+      (1, 1.5, 2.0),
+      (2, 2.0, 2.5),
+      (3, 2.5, 2.5),
+      (4, 2.5, 1.5),
+      (5, 1.5, 1.0)
+    )
+
+    // Setup spheres A, B, C
+    val A = sphere.setTransform(
+      sphere.setMaterial(
+        sphere.glass_sphere(),
+        sphere.glass_sphere().objectMaterial.copy(refractive_index = 1.5)
+      ),
+      transformation.scaling(2, 2, 2)
+    )
+
+    val B = sphere.setTransform(
+      sphere.setMaterial(
+        sphere.glass_sphere(),
+        sphere.glass_sphere().objectMaterial.copy(refractive_index = 2.0)
+      ),
+      transformation.translation(0, 0, -0.25)
+    )
+
+    val C = sphere.setTransform(
+      sphere.setMaterial(
+        sphere.glass_sphere(),
+        sphere.glass_sphere().objectMaterial.copy(refractive_index = 2.5)
+      ),
+      transformation.translation(0, 0, 0.25)
+    )
+
+    val r = ray(makePoint(0, 0, -4), makeVector(0, 0, 1))
+    val xs = intersections(
+      intersection(2, A),
+      intersection(2.75, B),
+      intersection(3.25, C),
+      intersection(4.75, B),
+      intersection(5.25, C),
+      intersection(6, A)
+    )
+
+    for ((index, expectedN1, expectedN2) <- testData) {
+      val comps = prepareComputations(xs(index), r, xs)
+      assertEquals(comps.n1, expectedN1, s"n1 mismatch at index $index")
+      assertEquals(comps.n2, expectedN2, s"n2 mismatch at index $index")
+    }
+  }
+
+  test("The under point is offset below the surface") {
+    val r = ray(makePoint(0, 0, -5), makeVector(0, 0, 1))
+    val shape = sphere.setTransform(sphere.glass_sphere(), transformation.translation(0, 0, 1))
+    val i = intersection(5, shape)
+    val xs = intersections(i)
+    
+    val comps = prepareComputations(i, r, xs)
+    
+    assertEquals(comps.underPoint.z > equality.EPSILON / 2, true)
+    assertEquals(comps.point.z < comps.underPoint.z, true)
+  }
+
+  test("The Schlick approximation under total internal reflection") {
+    val shape = sphere.glass_sphere()
+    val sqrt2over2 = math.sqrt(2) / 2
+    val r = ray(makePoint(0, 0, sqrt2over2), makeVector(0, 1, 0))
+    val xs = intersections(
+      intersection(-sqrt2over2, shape),
+      intersection(sqrt2over2, shape)
+    )
+    
+    val comps = prepareComputations(xs(1), r, xs)
+    val reflectance = schlick(comps)
+    
+    assertEquals(reflectance, 1.0)
+  }
+
+  test("The Schlick approximation with a perpendicular viewing angle") {
+    val shape = sphere.glass_sphere()
+    val r = ray(makePoint(0, 0, 0), makeVector(0, 1, 0))
+    val xs = intersections(
+      intersection(-1, shape),
+      intersection(1, shape)
+    )
+    
+    val comps = prepareComputations(xs(1), r, xs)
+    val reflectance = schlick(comps)
+    
+    assertEquals(almostEqual(reflectance, 0.04, 0.001), true)
+  }
+
+  test("The Schlick approximation with small angle and n2 > n1") {
+    val shape = sphere.glass_sphere()
+    val r = ray(makePoint(0, 0.99, -2), makeVector(0, 0, 1))
+    val xs = intersections(
+      intersection(1.8589, shape)
+    )
+    
+    val comps = prepareComputations(xs(0), r, xs)
+    val reflectance = schlick(comps)
+    
+    assertEquals(almostEqual(reflectance, 0.48873, 0.001), true)
   }
 }

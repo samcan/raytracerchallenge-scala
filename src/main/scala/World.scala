@@ -9,6 +9,7 @@ import com.samuelcantrell.raytracer.color
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.material
+import com.samuelcantrell.raytracer.material.lighting
 
 case class World(
     objects: Vector[shape.Shape] = Vector.empty,
@@ -103,6 +104,50 @@ def reflectedColor(
   color.multiply(reflectedColorValue, comps.obj.objectMaterial.reflective)
 }
 
+def refracted_color(
+    w: World,
+    comps: intersection.Computations,
+    remaining: Int = 5
+): color.Color = {
+  // If remaining is less than 1, return black to prevent infinite recursion
+  if (remaining < 1) {
+    return color.Color(0, 0, 0)
+  }
+
+  // If the material is not transparent, return black
+  if (comps.obj.objectMaterial.transparency == 0.0) {
+    return color.Color(0, 0, 0)
+  }
+
+  // Check for total internal reflection
+  val nRatio = comps.n1 / comps.n2
+  val cosI = tuple.dot(comps.eyev, comps.normalv)
+  val sin2T = nRatio * nRatio * (1 - cosI * cosI)
+  
+  if (sin2T > 1) {
+    // Total internal reflection
+    return color.Color(0, 0, 0)
+  }
+
+  // Find cos(theta_t) via trigonometric identity
+  val cosT = math.sqrt(1.0 - sin2T)
+
+  // Compute the direction of the refracted ray
+  val direction = tuple.subtract(
+    tuple.multiply(comps.normalv, nRatio * cosI - cosT),
+    tuple.multiply(comps.eyev, nRatio)
+  )
+
+  // Create the refracted ray
+  val refractRay = ray.ray(comps.underPoint, direction)
+
+  // Find the color of the refracted ray, decrementing remaining to avoid infinite recursion
+  val refractedColorValue = colorAt(w, refractRay, remaining - 1)
+
+  // Return the refracted color multiplied by the transparency value
+  color.multiply(refractedColorValue, comps.obj.objectMaterial.transparency)
+}
+
 def shadeHit(
     w: World,
     comps: intersection.Computations,
@@ -111,7 +156,7 @@ def shadeHit(
   w.lightSource match {
     case Some(light) =>
       val shadowed = isShadowed(w, comps.overPoint)
-      val surface = material.lighting(
+      val surface = lighting(
         comps.obj.objectMaterial,
         comps.obj,
         light,
@@ -121,9 +166,19 @@ def shadeHit(
         shadowed
       )
       val reflected = reflectedColor(w, comps, remaining)
+      val refracted = refracted_color(w, comps, remaining)
 
-      // Combine surface color and reflected color
-      color.add(surface, reflected)
+      // If the material is both reflective and transparent, use Schlick approximation
+      val material = comps.obj.objectMaterial
+      if (material.reflective > 0 && material.transparency > 0) {
+        val reflectance = intersection.schlick(comps)
+        val reflectedWeighted = color.multiply(reflected, reflectance)
+        val refractedWeighted = color.multiply(refracted, 1 - reflectance)
+        color.add(color.add(surface, reflectedWeighted), refractedWeighted)
+      } else {
+        // Combine surface color, reflected color, and refracted color normally
+        color.add(color.add(surface, reflected), refracted)
+      }
     case None =>
       color.Color(0, 0, 0) // No light source, return black
   }
@@ -138,7 +193,7 @@ def colorAt(w: World, r: ray.Ray, remaining: Int = 5): color.Color = {
   val intersections = intersectWorld(w, r)
   intersection.hit(intersections) match {
     case Some(hit) =>
-      val comps = intersection.prepareComputations(hit, r)
+      val comps = intersection.prepareComputations(hit, r, intersections)
       shadeHit(w, comps, remaining)
     case None =>
       color.Color(0, 0, 0) // Ray missed all objects, return black

@@ -3,6 +3,7 @@ import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
 import com.samuelcantrell.raytracer.material
+import com.samuelcantrell.raytracer.matrix
 
 class SphereSuite extends munit.FunSuite {
 
@@ -118,5 +119,12 @@ class SphereSuite extends munit.FunSuite {
     val normalized = tuple.normalize(n)
 
     assertEquals(tuple.isEqual(n, normalized), true)
+  }
+
+  test("A helper for producing a sphere with a glassy material") {
+    val s = glass_sphere()
+    assertEquals(matrix.isEqual(s.transform, matrix.Matrix.identity()), true)
+    assertEquals(s.objectMaterial.transparency, 1.0)
+    assertEquals(s.objectMaterial.refractive_index, 1.5)
   }
 }

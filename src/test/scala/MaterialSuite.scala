@@ -17,6 +17,12 @@ class MaterialSuite extends munit.FunSuite {
     assertEquals(m.shininess, 200.0)
   }
 
+  test("Transparency and Refractive Index for the default material") {
+    val m = material()
+    assertEquals(m.transparency, 0.0)
+    assertEquals(m.refractive_index, 1.0)
+  }
+
   test("Lighting with the eye between the light and the surface") {
     val m = material()
     val position = tuple.makePoint(0, 0, 0)
