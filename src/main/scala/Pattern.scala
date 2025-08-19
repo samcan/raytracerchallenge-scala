@@ -151,8 +151,8 @@ def patternAtShape(
     obj: shape.Shape,
     worldPoint: tuple.Tuple
 ): color.Color = {
-  // Convert world point to object space
-  val objectPoint = obj.transform.inverse * worldPoint
+  // Convert world point to object space using parent hierarchy
+  val objectPoint = shape.worldToObject(obj, worldPoint)
 
   // Convert object point to pattern space
   val patternPoint = pattern.transform.inverse * objectPoint

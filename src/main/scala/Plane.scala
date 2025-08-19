@@ -12,7 +12,8 @@ import java.util.UUID
 case class Plane(
     id: String = UUID.randomUUID().toString,
     transform: matrix.Matrix = matrix.Matrix.identity(),
-    objectMaterial: material.Material = material.material()
+    objectMaterial: material.Material = material.material(),
+    parent: Option[shape.Shape] = None
 ) extends shape.Shape {
 
   def localIntersect(localRay: ray.Ray): intersection.Intersections = {
@@ -40,6 +41,10 @@ case class Plane(
 
   def withMaterial(newMaterial: material.Material): Plane = {
     this.copy(objectMaterial = newMaterial)
+  }
+
+  def withParent(newParent: Option[shape.Shape]): Plane = {
+    this.copy(parent = newParent)
   }
 }
 
