@@ -1,5 +1,6 @@
 import com.samuelcantrell.raytracer.sphere
 import com.samuelcantrell.raytracer.plane
+import com.samuelcantrell.raytracer.cube
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.color
@@ -75,6 +76,22 @@ import com.samuelcantrell.raytracer.pattern
     )
   val leftWithMaterial = sphere.setMaterial(leftTransformed, leftMaterial)
 
+  // Create a cube
+  val cubeShape = cube.cube()
+  val cubeTransform = transformation.translation(2, 3, 1.5) *
+    transformation.scaling(0.3, 0.3, 0.3) *
+    transformation.rotation_y(math.Pi / 4)
+  val cubeTransformed = cube.setTransform(cubeShape, cubeTransform)
+  val cubeMaterial = material
+    .material()
+    .copy(
+      materialColor = color.Color(0.8, 0.2, 0.3),
+      diffuse = 0.8,
+      specular = 0.2,
+      reflective = 0.0
+    )
+  val cubeWithMaterial = cube.setMaterial(cubeTransformed, cubeMaterial)
+
   // Create the world with all objects
   val lightSource = light.pointLight(
     tuple.makePoint(-10, 10, -10),
@@ -86,7 +103,8 @@ import com.samuelcantrell.raytracer.pattern
       floorWithMaterial,
       middleWithMaterial,
       rightWithMaterial,
-      leftWithMaterial
+      leftWithMaterial,
+      cubeWithMaterial
     ),
     lightSource = Some(lightSource)
   )

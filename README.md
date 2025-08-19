@@ -9,7 +9,7 @@ This project was implemented as a learning experience using Anthropic's Claude a
 This ray tracer currently supports:
 
 ### Core Rendering
-- **Ray-object intersection** for spheres and planes
+- **Ray-object intersection** for spheres, planes, and cubes
 - **Phong lighting model** with ambient, diffuse, and specular components
 - **Shadows** with accurate shadow ray calculations
 - **Camera system** with configurable field of view and transforms
@@ -37,7 +37,7 @@ This ray tracer currently supports:
 
 The raytracer can render complex scenes with multiple objects, transparency, refraction, reflections, and realistic lighting:
 
-![Sample raytraced scene with transparency and reflections](docs/transparency.png)
+![Sample raytraced scene with cube, spheres, transparency and reflections](docs/cube.png)
 
 ## Getting Started
 
@@ -75,8 +75,8 @@ sbt test
 ## Project Structure
 
 - `src/main/scala/` - Core raytracer implementation
-  - `Main.scala` - Demo scene with spheres, planes, and lighting
-  - `Ray.scala`, `Sphere.scala`, `Plane.scala` - Geometric primitives
+  - `Main.scala` - Demo scene with spheres, planes, cubes, and lighting
+  - `Ray.scala`, `Sphere.scala`, `Plane.scala`, `Cube.scala` - Geometric primitives
   - `Material.scala`, `Pattern.scala` - Surface properties and patterns
   - `Camera.scala`, `World.scala` - Scene and camera management
   - `Color.scala`, `Canvas.scala` - Color handling and image generation
@@ -92,6 +92,7 @@ The default scene (in `Main.scala`) renders:
   - **Middle sphere**: Transparent glass sphere with refraction
   - **Right sphere**: Highly reflective metallic surface
   - **Left sphere**: Matte yellow-orange surface
+- A red cube positioned in the background with rotation
 - Point light source positioned above and to the left
 
 You can modify the scene by editing `Main.scala` to experiment with different:
