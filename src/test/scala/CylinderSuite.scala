@@ -12,6 +12,12 @@ class CylinderSuite extends munit.FunSuite {
     assertEquals(cyl.maximum, Double.PositiveInfinity)
   }
 
+  test("The default closed value for a cylinder") {
+    val cyl = cylinder()
+    
+    assertEquals(cyl.closed, false)
+  }
+
   test("A ray misses a cylinder - test 1") {
     val cyl = cylinder()
     val direction = tuple.normalize(tuple.makeVector(0, 1, 0))
@@ -156,5 +162,98 @@ class CylinderSuite extends munit.FunSuite {
     val xs = localIntersect(cyl, r)
 
     assertEquals(xs.count, 2)
+  }
+
+  test("Intersecting the caps of a closed cylinder - test 1") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val direction = tuple.normalize(tuple.makeVector(0, -1, 0))
+    val r = ray.ray(tuple.makePoint(0, 3, 0), direction)
+    val xs = localIntersect(cyl, r)
+
+    assertEquals(xs.count, 2)
+  }
+
+  test("Intersecting the caps of a closed cylinder - test 2") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val direction = tuple.normalize(tuple.makeVector(0, -1, 2))
+    val r = ray.ray(tuple.makePoint(0, 3, -2), direction)
+    val xs = localIntersect(cyl, r)
+
+    assertEquals(xs.count, 2)
+  }
+
+  test("Intersecting the caps of a closed cylinder - test 3") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val direction = tuple.normalize(tuple.makeVector(0, -1, 1))
+    val r = ray.ray(tuple.makePoint(0, 4, -2), direction)
+    val xs = localIntersect(cyl, r)
+
+    assertEquals(xs.count, 2)
+  }
+
+  test("Intersecting the caps of a closed cylinder - test 4") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val direction = tuple.normalize(tuple.makeVector(0, 1, 2))
+    val r = ray.ray(tuple.makePoint(0, 0, -2), direction)
+    val xs = localIntersect(cyl, r)
+
+    assertEquals(xs.count, 2)
+  }
+
+  test("Intersecting the caps of a closed cylinder - test 5") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val direction = tuple.normalize(tuple.makeVector(0, 1, 1))
+    val r = ray.ray(tuple.makePoint(0, -1, -2), direction)
+    val xs = localIntersect(cyl, r)
+
+    assertEquals(xs.count, 2)
+  }
+
+  test("The normal vector on a cylinder's end caps - point(0, 1, 0)") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val n = localNormalAt(cyl, tuple.makePoint(0, 1, 0))
+    val expected = tuple.makeVector(0, -1, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("The normal vector on a cylinder's end caps - point(0.5, 1, 0)") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val n = localNormalAt(cyl, tuple.makePoint(0.5, 1, 0))
+    val expected = tuple.makeVector(0, -1, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("The normal vector on a cylinder's end caps - point(0, 1, 0.5)") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val n = localNormalAt(cyl, tuple.makePoint(0, 1, 0.5))
+    val expected = tuple.makeVector(0, -1, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("The normal vector on a cylinder's end caps - point(0, 2, 0)") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val n = localNormalAt(cyl, tuple.makePoint(0, 2, 0))
+    val expected = tuple.makeVector(0, 1, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("The normal vector on a cylinder's end caps - point(0.5, 2, 0)") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val n = localNormalAt(cyl, tuple.makePoint(0.5, 2, 0))
+    val expected = tuple.makeVector(0, 1, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
+  }
+
+  test("The normal vector on a cylinder's end caps - point(0, 2, 0.5)") {
+    val cyl = cylinder().copy(minimum = 1, maximum = 2, closed = true)
+    val n = localNormalAt(cyl, tuple.makePoint(0, 2, 0.5))
+    val expected = tuple.makeVector(0, 1, 0)
+
+    assertEquals(tuple.isEqual(n, expected), true)
   }
 }

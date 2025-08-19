@@ -19,13 +19,14 @@ case class Cylinder(
 ) extends shape.Shape {
 
   def localIntersect(localRay: ray.Ray): intersection.Intersections = {
+    val intersections = scala.collection.mutable.ArrayBuffer[intersection.Intersection]()
+    
+    // Check for intersections with the cylinder walls
     val a = localRay.direction.x * localRay.direction.x + 
             localRay.direction.z * localRay.direction.z
 
-    // Ray is parallel to the y axis
-    if (math.abs(a) < 1e-10) {
-      intersection.Intersections(Array.empty[intersection.Intersection])
-    } else {
+    // Ray is not parallel to the y axis
+    if (math.abs(a) >= equality.EPSILON) {
       val b = 2 * localRay.origin.x * localRay.direction.x + 
               2 * localRay.origin.z * localRay.direction.z
       val c = localRay.origin.x * localRay.origin.x + 
@@ -33,10 +34,8 @@ case class Cylinder(
 
       val discriminant = b * b - 4 * a * c
 
-      // Ray does not intersect the cylinder
-      if (discriminant < 0) {
-        intersection.Intersections(Array.empty[intersection.Intersection])
-      } else {
+      // Ray intersects the cylinder
+      if (discriminant >= 0) {
         val t0 = (-b - math.sqrt(discriminant)) / (2 * a)
         val t1 = (-b + math.sqrt(discriminant)) / (2 * a)
 
@@ -45,8 +44,6 @@ case class Cylinder(
         val y0 = localRay.origin.y + t0_sorted * localRay.direction.y
         val y1 = localRay.origin.y + t1_sorted * localRay.direction.y
 
-        val intersections = scala.collection.mutable.ArrayBuffer[intersection.Intersection]()
-
         if (minimum < y0 && y0 < maximum) {
           intersections += intersection.intersection(t0_sorted, this)
         }
@@ -54,10 +51,40 @@ case class Cylinder(
         if (minimum < y1 && y1 < maximum) {
           intersections += intersection.intersection(t1_sorted, this)
         }
-
-        intersection.Intersections(intersections.toArray)
       }
     }
+    
+    // Check for intersections with the caps if the cylinder is closed
+    if (closed) {
+      intersectCaps(localRay, intersections)
+    }
+
+    intersection.Intersections(intersections.toArray)
+  }
+
+  private def intersectCaps(localRay: ray.Ray, intersections: scala.collection.mutable.ArrayBuffer[intersection.Intersection]): Unit = {
+    // Check if ray is parallel to the xz plane
+    if (math.abs(localRay.direction.y) < equality.EPSILON) {
+      return
+    }
+
+    // Check intersection with lower cap at y = minimum
+    val t_lower = (minimum - localRay.origin.y) / localRay.direction.y
+    if (checkCap(localRay, t_lower)) {
+      intersections += intersection.intersection(t_lower, this)
+    }
+
+    // Check intersection with upper cap at y = maximum
+    val t_upper = (maximum - localRay.origin.y) / localRay.direction.y
+    if (checkCap(localRay, t_upper)) {
+      intersections += intersection.intersection(t_upper, this)
+    }
+  }
+
+  private def checkCap(r: ray.Ray, t: Double): Boolean = {
+    val x = r.origin.x + t * r.direction.x
+    val z = r.origin.z + t * r.direction.z
+    (x * x + z * z) <= 1
   }
 
   def localNormalAt(localPoint: tuple.Tuple): tuple.Tuple = {
