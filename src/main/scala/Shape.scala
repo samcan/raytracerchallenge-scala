@@ -32,22 +32,16 @@ def intersect(shape: Shape, r: ray.Ray): intersection.Intersections = {
   shape.localIntersect(transformedRay)
 }
 
-// General normal calculation that works for all shapes
+// General normal calculation that works for all shapes (including groups)
 def normalAt(shape: Shape, worldPoint: tuple.Tuple): tuple.Tuple = {
-  // Transform the world point to object space
-  val localPoint = shape.transform.inverse * worldPoint
+  // Convert world point to object space using parent hierarchy
+  val localPoint = worldToObject(shape, worldPoint)
 
   // Get the local normal from the shape
   val localNormal = shape.localNormalAt(localPoint)
 
-  // Transform the normal back to world space
-  val worldNormal = shape.transform.inverse.transpose * localNormal
-
-  // Set w component to 0 to ensure it's a vector, then normalize
-  val correctedNormal =
-    tuple.makeVector(worldNormal.x, worldNormal.y, worldNormal.z)
-
-  tuple.normalize(correctedNormal)
+  // Convert normal to world space using parent hierarchy
+  normalToWorld(shape, localNormal)
 }
 
 // Convenience functions for setting transform and material
@@ -96,4 +90,28 @@ case class TestShape(
 
 def testShape(): TestShape = {
   TestShape()
+}
+
+// Convert a point from world space to object space by walking up the parent hierarchy
+def worldToObject(shape: Shape, worldPoint: tuple.Tuple): tuple.Tuple = {
+  val point = shape.parent match {
+    case Some(parent) => worldToObject(parent, worldPoint)
+    case None => worldPoint
+  }
+  shape.transform.inverse * point
+}
+
+// Convert a normal from object space to world space by walking up the parent hierarchy
+def normalToWorld(shape: Shape, objectNormal: tuple.Tuple): tuple.Tuple = {
+  // Transform the normal to parent space
+  val normal = shape.transform.inverse.transpose * objectNormal
+  val correctedNormal = tuple.makeVector(normal.x, normal.y, normal.z)
+  
+  // Continue up the parent hierarchy
+  val worldNormal = shape.parent match {
+    case Some(parent) => normalToWorld(parent, correctedNormal)
+    case None => correctedNormal
+  }
+  
+  tuple.normalize(worldNormal)
 }

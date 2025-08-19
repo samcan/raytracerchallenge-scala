@@ -4,6 +4,8 @@ import com.samuelcantrell.raytracer.material
 import com.samuelcantrell.raytracer.transformation
 import com.samuelcantrell.raytracer.ray
 import com.samuelcantrell.raytracer.tuple
+import com.samuelcantrell.raytracer.sphere
+import com.samuelcantrell.raytracer.equality
 
 class ShapeSuite extends munit.FunSuite {
 
@@ -96,5 +98,54 @@ class ShapeSuite extends munit.FunSuite {
   test("A shape has a parent attribute") {
     val s = testShape()
     assertEquals(s.parent, None)
+  }
+
+  test("Converting a point from world to object space") {
+    val g1 = group()
+    val g1Transformed = setTransform(g1, transformation.rotation_y(math.Pi / 2))
+    val g2 = group()
+    val g2Transformed = setTransform(g2, transformation.scaling(2, 2, 2))
+    val (g1WithChild, g2WithParent) = addChild(g1Transformed, g2Transformed)
+    val s = sphere.sphere()
+    val sTransformed = setTransform(s, transformation.translation(5, 0, 0))
+    val (g2WithChild, sWithParent) = addChild(g2WithParent.asInstanceOf[Group], sTransformed)
+    
+    val p = worldToObject(sWithParent, tuple.makePoint(-2, 0, -10))
+    val expected = tuple.makePoint(0, 0, -1)
+    
+    assertEquals(tuple.isEqual(p, expected, equality.EPSILON), true)
+  }
+
+  test("Converting a normal from object to world space") {
+    val g1 = group()
+    val g1Transformed = setTransform(g1, transformation.rotation_y(math.Pi / 2))
+    val g2 = group()
+    val g2Transformed = setTransform(g2, transformation.scaling(1, 2, 3))
+    val (g1WithChild, g2WithParent) = addChild(g1Transformed, g2Transformed)
+    val s = sphere.sphere()
+    val sTransformed = setTransform(s, transformation.translation(5, 0, 0))
+    val (g2WithChild, sWithParent) = addChild(g2WithParent.asInstanceOf[Group], sTransformed)
+    
+    val sqrt3over3 = math.sqrt(3) / 3
+    val n = normalToWorld(sWithParent, tuple.makeVector(sqrt3over3, sqrt3over3, sqrt3over3))
+    val expected = tuple.makeVector(0.2857, 0.4286, -0.8571)
+    
+    assertEquals(tuple.isEqual(n, expected, 0.0001), true)
+  }
+
+  test("Finding the normal on a child object") {
+    val g1 = group()
+    val g1Transformed = setTransform(g1, transformation.rotation_y(math.Pi / 2))
+    val g2 = group()
+    val g2Transformed = setTransform(g2, transformation.scaling(1, 2, 3))
+    val (g1WithChild, g2WithParent) = addChild(g1Transformed, g2Transformed)
+    val s = sphere.sphere()
+    val sTransformed = setTransform(s, transformation.translation(5, 0, 0))
+    val (g2WithChild, sWithParent) = addChild(g2WithParent.asInstanceOf[Group], sTransformed)
+    
+    val n = normalAt(sWithParent, tuple.makePoint(1.7321, 1.1547, -5.5774))
+    val expected = tuple.makeVector(0.2857, 0.4286, -0.8571)
+    
+    assertEquals(tuple.isEqual(n, expected, 0.0001), true)
   }
 }
