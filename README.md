@@ -11,6 +11,7 @@ This ray tracer currently supports:
 ### Core Rendering
 - **Ray-object intersection** for spheres, planes, cubes, cylinders, and cones
 - **Quadric surface support** with shared geometry handling for cylinders and cones
+- **Hierarchical scene graphs** with groups supporting parent-child relationships
 - **Phong lighting model** with ambient, diffuse, and specular components
 - **Shadows** with accurate shadow ray calculations
 - **Camera system** with configurable field of view and transforms
@@ -30,17 +31,19 @@ This ray tracer currently supports:
 
 ### Geometry & Transformations
 - **Primitive shapes**: spheres, planes, cubes, cylinders (with caps), and cones (with caps)
+- **Group objects**: hierarchical containers for organizing complex scenes
 - **Constrained primitives**: cylinders and cones with configurable height limits
-- **3D transformations**: translation, scaling, rotation, shearing
+- **3D transformations**: translation, scaling, rotation, shearing with full hierarchy support
+- **Coordinate space conversions**: world-to-object and object-to-world transformations
 - **View transformations** for camera positioning
 - **Matrix operations** with 4x4 homogeneous coordinates
 - **Vector math** with proper tuple handling for points and vectors
 
 ## Sample Output
 
-The raytracer can render complex scenes with multiple objects, transparency, refraction, reflections, and realistic lighting:
+The raytracer can render complex hierarchical scenes using groups to organize geometric primitives:
 
-![Sample raytraced scene with cylinders, cones, cubes, spheres, transparency and reflections](docs/cylinder.png)
+![Sample raytraced scene with hierarchical hexagon made from grouped spheres and cylinders](docs/groups.png)
 
 ## Getting Started
 
@@ -78,10 +81,11 @@ sbt test
 ## Project Structure
 
 - `src/main/scala/` - Core raytracer implementation
-  - `Main.scala` - Demo scene with spheres, planes, cubes, cylinders, cones, and lighting
+  - `Main.scala` - Demo scene with hierarchical hexagon and lighting
   - `Ray.scala`, `Sphere.scala`, `Plane.scala`, `Cube.scala`, `Cylinder.scala`, `Cone.scala` - Geometric primitives
+  - `Group.scala`, `Shape.scala` - Hierarchical scene graph with parent-child relationships
   - `QuadricShape.scala` - Base class for quadric surfaces (cylinders and cones)
-  - `Material.scala`, `Pattern.scala` - Surface properties and patterns
+  - `Material.scala`, `Pattern.scala` - Surface properties and patterns with hierarchy support
   - `Camera.scala`, `World.scala` - Scene and camera management
   - `Color.scala`, `Canvas.scala` - Color handling and image generation
   
@@ -90,30 +94,45 @@ sbt test
 
 ## Scene Configuration
 
-The default scene (in `Main.scala`) renders:
+The default scene (in `Main.scala`) demonstrates hierarchical scene graphs with a complex hexagon model:
+
+### Hexagon Model Structure
+- **Hierarchical groups**: A main hexagon group containing 6 component sub-groups
+- **Component reuse**: Each component contains one red sphere (corner) and one green cylinder (edge)
+- **Coordinate transformations**: Each component is rotated 60° around the Y-axis
+- **Parent-child relationships**: Transformations cascade through the hierarchy
+- **Surface patterns**: Work correctly on grouped objects through proper coordinate space conversions
+
+### Scene Elements
 - A black and white striped floor plane with reflectivity
-- Three spheres with different materials:
-  - **Middle sphere**: Transparent glass sphere with refraction
-  - **Right sphere**: Highly reflective metallic surface
-  - **Left sphere**: Matte yellow-orange surface
-- A red cube positioned in the background with rotation
-- A blue cylinder with closed caps positioned on the left side
-- An orange cone with closed caps positioned in the foreground
+- A hexagon positioned at (0, 1, -3) made from:
+  - **6 red spheres**: Small spheres at hexagon corners with diffuse red material
+  - **6 green cylinders**: Thin cylinders forming hexagon edges with diffuse green material
 - Point light source positioned above and to the left
 
 You can modify the scene by editing `Main.scala` to experiment with different:
-- Object positions and scales
+- Group hierarchies and nesting levels
+- Object positions and scales within groups
 - Material properties (colors, reflectivity, transparency, refractive indices)
+- Group transformations and rotations
 - Lighting conditions
 - Camera angles and positions
-- Surface patterns
+- Surface patterns on grouped objects
 
 ## Architecture
 
 The raytracer follows object-oriented principles with functional programming patterns:
 - **Immutable data structures** for geometric and material properties
-- **Pure functions** for mathematical operations
+- **Hierarchical scene graphs** with proper parent-child relationship management
+- **Coordinate space transformations** supporting complex nested object hierarchies
+- **Pure functions** for mathematical operations and transformations
 - **Type safety** with Scala's strong type system
 - **Modular design** with clear separation of concerns
 
-Built with modern Scala 3 features and tested with munit for reliability.
+### Group System Features
+- **Parent-child relationships**: Objects inherit transformations from their parent groups
+- **Recursive transformations**: `worldToObject` and `normalToWorld` functions traverse the hierarchy
+- **Pattern support**: Surface patterns work correctly on grouped objects through proper coordinate conversions
+- **Memory efficient**: Single primitive definitions can be reused across multiple group instances
+
+Built with modern Scala 3 features and comprehensively tested with munit (300+ tests) for reliability.
