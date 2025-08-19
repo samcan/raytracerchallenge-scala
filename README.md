@@ -41,9 +41,9 @@ This ray tracer currently supports:
 
 ## Sample Output
 
-The raytracer can render complex hierarchical scenes using groups to organize geometric primitives:
+The raytracer can render complex scenes with multiple objects, transparency, refraction, reflections, and realistic lighting:
 
-![Sample raytraced scene with hierarchical hexagon made from grouped spheres and cylinders](docs/groups.png)
+![Sample raytraced scene with cylinders, cones, cubes, spheres, transparency and reflections](docs/cylinder.png)
 
 ## Getting Started
 
@@ -81,7 +81,7 @@ sbt test
 ## Project Structure
 
 - `src/main/scala/` - Core raytracer implementation
-  - `Main.scala` - Demo scene with hierarchical hexagon and lighting
+  - `Main.scala` - Demo scene with spheres, planes, cubes, cylinders, cones, and lighting
   - `Ray.scala`, `Sphere.scala`, `Plane.scala`, `Cube.scala`, `Cylinder.scala`, `Cone.scala` - Geometric primitives
   - `Group.scala`, `Shape.scala` - Hierarchical scene graph with parent-child relationships
   - `QuadricShape.scala` - Base class for quadric surfaces (cylinders and cones)
@@ -94,30 +94,34 @@ sbt test
 
 ## Scene Configuration
 
-The default scene (in `Main.scala`) demonstrates hierarchical scene graphs with a complex hexagon model:
-
-### Hexagon Model Structure
-- **Hierarchical groups**: A main hexagon group containing 6 component sub-groups
-- **Component reuse**: Each component contains one red sphere (corner) and one green cylinder (edge)
-- **Coordinate transformations**: Each component is rotated 60° around the Y-axis
-- **Parent-child relationships**: Transformations cascade through the hierarchy
-- **Surface patterns**: Work correctly on grouped objects through proper coordinate space conversions
+The default scene (in `Main.scala`) renders a complex scene showcasing all raytracer features:
 
 ### Scene Elements
-- A black and white striped floor plane with reflectivity
-- A hexagon positioned at (0, 1, -3) made from:
-  - **6 red spheres**: Small spheres at hexagon corners with diffuse red material
-  - **6 green cylinders**: Thin cylinders forming hexagon edges with diffuse green material
-- Point light source positioned above and to the left
+- **Striped floor plane**: Black and white stripe pattern with reflectivity
+- **Three spheres** with different advanced materials:
+  - **Middle sphere**: Transparent glass sphere with refraction (refractive index 1.5)
+  - **Right sphere**: Highly reflective metallic surface with minimal diffuse lighting
+  - **Left sphere**: Matte yellow-orange surface with standard diffuse/specular properties
+- **Red cube**: Positioned in the background with 45° rotation and scaling
+- **Blue cylinder**: Closed caps, positioned on the left side with custom height (0-2)
+- **Orange cone**: Closed caps, positioned in the foreground with custom height (-1-0)
+- **Point light source**: Positioned above and to the left for dramatic lighting
+
+### Advanced Features Demonstrated
+- **Transparency and refraction**: Glass sphere shows light bending through transparent materials
+- **Reflections**: Multiple objects reflect in the metallic sphere and floor
+- **Surface patterns**: Striped floor pattern with proper transformations
+- **Complex materials**: Mix of matte, metallic, and glass surfaces
+- **Shadows**: Accurate shadow casting from all objects
+- **Constrained primitives**: Cylinder and cone with custom height limits and caps
 
 You can modify the scene by editing `Main.scala` to experiment with different:
-- Group hierarchies and nesting levels
-- Object positions and scales within groups
+- Object positions and scales
 - Material properties (colors, reflectivity, transparency, refractive indices)
-- Group transformations and rotations
-- Lighting conditions
+- Surface patterns and their transformations
+- Lighting conditions and shadow effects
 - Camera angles and positions
-- Surface patterns on grouped objects
+- Primitive constraints (cylinder/cone height limits)
 
 ## Architecture
 
